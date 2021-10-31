@@ -13,19 +13,31 @@
 	char* string;
 }
 
-%token <int_number> NUBMER
+%token <int_number> NUMBER
 %token <symbol> SYMBOL
 %token <string> STRING
 %token DEFINE
 
 %%
 
+
+	mylisp:
+	NUMBER {
+		printf("y %d\n", $1);
+	}
+	;
+
+
+%%
+
+/*
+	// I'm trying something out, so I'm gonna keep this here for a bit
+
 	mylisp:
 	expression
 	| expression expression
 	;
 
-	/*I don't know if this should be a special case, or if this would fall under expression*/
 	definition:
 	'(' DEFINE SYMBOL opperandlist expression ')' {
 
@@ -43,16 +55,10 @@
 	;
 
 	opperand:
-		SYMBOL { $$ = $1; }
+		SYMBOL
 	;
+*/
 
-%%
-
-
-int main(int argc, char** argv){
-	yyparse();
-	return 0;
-}
 
 void yyerror(const char *s){
 	fprintf(stderr, "Ooops there was a error : %s\n", s);
