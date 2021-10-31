@@ -4,16 +4,21 @@ YACC	= bison
 CC		= gcc
 CXX		= g++
 
-CFLAGS = -lreadline -Wall -g -lfl -lbison
+YFLAGS = -H
+CFLAGS = -lreadline -Wall -g -lfl
 
 objects = main.o scan.o parse.o
 
+
 mylisp: $(objects)
-main.o:
-scan.o: scan.l parse.c
-parse.o: parse.y
+	$(CC) $(CFLAGS) -o $@ $?
+main.o: parse.c parse.y
+scan.c: scan.l parse.c parse.h
+parse.c + parse.h: parse.y
+	$(YACC) $(YFLAGS) parse.y -o parse.c
+
 
 .PHONY: clean
 clean:
-	rm -r mylisp $(objects)
+	rm -r mylisp $(objects) parse.c parse.h scan.c
 
