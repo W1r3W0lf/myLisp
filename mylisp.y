@@ -7,8 +7,15 @@
 	void yyerror(const char *s);
 %}
 
-%token NUBMER
-%token FUNCTION_NAME
+%union{
+	char* symbol;
+	int int_number;
+	char* string;
+}
+
+%token <int_number> NUBMER
+%token <symbol> SYMBOL
+%token <string> STRING
 %token DEFINE
 
 %%
@@ -20,12 +27,12 @@
 
 	/*I don't know if this should be a special case, or if this would fall under expression*/
 	definition:
-	'(' DEFINE symbol opperandlist expression ')' {
+	'(' DEFINE SYMBOL opperandlist expression ')' {
 
 	}
 
 	expression:
-	'(' FUNCTION_NAME opperandlist ')' {
+	'(' SYMBOL opperandlist ')' {
 
 	}
 	;
@@ -36,7 +43,7 @@
 	;
 
 	opperand:
-		symbol { $$ = $1; }
+		SYMBOL { $$ = $1; }
 	;
 
 %%
