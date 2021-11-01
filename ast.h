@@ -23,7 +23,7 @@ typedef struct ast_node{
 	ast_value value;
 	ast_node_type type;
 	int child_count; // How many children does this node currently have
-	bool defined; // Weather or not this function has a definition
+	int ref_count; // How many times has this node been refrinced, if it is grater then 1 at the time of deletion it will not be deleted.
 } ast_node;
 
 // A nil value is reprented as a NULL pointer.
