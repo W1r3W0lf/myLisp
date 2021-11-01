@@ -3,6 +3,8 @@
 	#include "parse.h"
 %}
 
+%option noinput nounput
+
 %%
 define					{ return DEFINE; }
 -?[0-9]+				{ yylval.int_number = atoi(yytext); return NUMBER; }

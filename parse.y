@@ -16,7 +16,7 @@
 %token <int_number> NUMBER
 %token <symbol> SYMBOL
 %token <string> STRING
-%token DEFINE COND LET PRINT EXIT
+%token DEFINE COND NIL CONS
 
 %%
 
