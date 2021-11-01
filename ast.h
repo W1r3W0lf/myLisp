@@ -1,6 +1,8 @@
 #ifndef AST_H
 #define AST_H
 
+#include <stdbool.h>
+
 typedef enum ast_node_type {
 	number,
 	string,
@@ -21,6 +23,7 @@ typedef struct ast_node{
 	ast_value value;
 	ast_node_type type;
 	int child_count; // How many children does this node currently have
+	bool defined; // Weather or not this function has a definition
 } ast_node;
 
 // A nil value is reprented as a NULL pointer.

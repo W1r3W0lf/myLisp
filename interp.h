@@ -3,6 +3,6 @@
 
 #include "ast.h"
 
-int eval();
+ast_node* eval(ast_node* root);
 
 #endif
