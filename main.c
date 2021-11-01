@@ -9,6 +9,12 @@
 #include "parse.h"
 
 
+// Flex scan string
+typedef struct yy_buffer_state * YY_BUFFER_STATE;
+extern YY_BUFFER_STATE yy_scan_string(char * str);
+extern void yy_delete_buffer(YY_BUFFER_STATE buffer);
+
+// Argument parsing
 const char *argp_program_version = "myLisp 0.0.1";
 const char *argp_program_bug_address = "apple.link.level@gmail.com";
 static char doc[] = "Wire_Wolf's first stab at writting a lisp.";
@@ -53,11 +59,13 @@ int main(int argc, char** argv){
 	while(1){
 		char* input = readline("myLisp> ");
 
+		YY_BUFFER_STATE buffer = yy_scan_string(input);
+
 		add_history(input);
 
 		yyparse();
 
-		printf("that's all\n");
+		yy_delete_buffer(buffer);
 
 		free(input);
 	}

@@ -16,15 +16,38 @@
 %token <int_number> NUMBER
 %token <symbol> SYMBOL
 %token <string> STRING
-%token DEFINE
+%token DEFINE COND LET PRINT EXIT
 
 %%
 
+	statement:
+		expression
+	|	expression expression
+	;
 
-	mylisp:
-	NUMBER {
-		printf("y %d\n", $1);
-	}
+	expression:
+		'(' DEFINE SYMBOL datatype ')' {
+		printf("%s has been defined\n", $3);
+		}
+		| datatype
+	;
+
+	datatype:
+		NUMBER {
+			printf("%d\n",$1);
+			//$$ = $1;
+		}
+	|
+		STRING {
+			printf("%s\n", $1);
+			//$$ = $1;
+			free($1);
+		}
+	|
+		SYMBOL {
+			printf("Error: %s is undefined\n", $1);
+			free($1);
+		}
 	;
 
 
