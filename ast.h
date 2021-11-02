@@ -7,13 +7,19 @@ typedef enum ast_node_type {
 	number,
 	string,
 	symbol,
-	definition,
-	conditinal,
+	function, // A function written in myLisp
+	function_pointer, // A function that's built into the interpriter
+	quote,
 	cons_cell,
-	quote
+	definition,
+	expression,
+	conditinal
 } ast_node_type;
 
+struct ast_node;
+
 typedef union ast_value{
+	struct ast_node* (*function)(struct ast_node*);
 	char* string;
 	int number;
 } ast_value;

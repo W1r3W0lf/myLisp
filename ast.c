@@ -5,13 +5,16 @@
 
 // The number of children a node should have based on it's type
 const int children_num[] = {
-	0, // number
-	0, // string
-	0, // symbol
-	2, // definition
-	3, // conditinal
-	2, // cons_cell
-	1  // quote
+	0, // number 1
+	0, // string "string"
+	0, // symbol a
+	2, // function (lambda (a b) (+ a b)) -> (a b) (+ a b)
+	1, // function_pointer (+ 1 2) -> (1 2) plus would be inplied
+	1, // quote   '(a b c) -> (a b c)
+	2, // cons_cell (a . b) -> (a . b)
+	3, // definition (define (a b c) (+ b c) ) -> a (b c) (+ b c)
+	2, // expression (+ 1 2) -> + (1 2)
+	1, // conditinal (cond ((eq 1 2) 2) ((eq 1 1) 1) ) -> (((eq 1 2) 2) ((eq 1 1) 1))
 };
 
 
