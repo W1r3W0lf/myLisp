@@ -38,7 +38,7 @@ ast_node* ast_new_node(ast_node_type type){
 int ast_add_child(ast_node *parent, ast_node *child){
 
 	// There must be room for another child
-	assert(parent->child_count < children_num[parent->child_count]);
+	assert(parent->child_count <= children_num[parent->type]);
 
 	parent->children[++parent->child_count] = child;
 	child->ref_count++;

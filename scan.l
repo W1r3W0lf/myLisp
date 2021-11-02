@@ -11,7 +11,7 @@ define					{ return DEFINE; }
 [a-zA-Z]+[a-zA-Z0-9]*	{ yylval.symbol = strdup(yytext); return SYMBOL; }
 ['"][a-zA-Z0-9]*['"]	{ yylval.string = strdup(yytext); return STRING; }
 [ \t\n]					;
-['()"]					{ return yytext[0]; }
+['()"\.]					{ return yytext[0]; }
 %%
 
 

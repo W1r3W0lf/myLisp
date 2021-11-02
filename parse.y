@@ -1,6 +1,8 @@
 %{
 	#include <stdio.h>
 
+	#include "ast.h"
+
 	extern int yylex();
 	extern int yyparse();
 
@@ -11,31 +13,62 @@
 	char* symbol;
 	int int_number;
 	char* string;
+	struct ast_node* ast;
 }
 
 %token <int_number> NUMBER
 %token <symbol> SYMBOL
 %token <string> STRING
-%token DEFINE COND NIL CONS
+%type <ast> datatype
+%type <ast> cons
+%type <ast> list
+%token DEFINE COND NIL
 
 %%
 
 	statement:
-		expression
-	|	expression expression
+		datatype
+	|	definition
+	|	cons
 	;
 
-	expression:
+	cons:
+		'(' datatype '.' datatype ')' {
+			ast_node* node = ast_new_node(cons_cell);
+			ast_add_child(node, $2);
+			ast_add_child(node, $4);
+			printf("cons\n");
+			//$$ = node;
+		}
+	|	'(' list ')' {
+			printf("list\n");
+			$$ = $2;
+		}
+	;
+
+	list:
+		datatype {
+			$$ = $1;
+		}
+	|	list datatype {
+		ast_node* node = ast_new_node(cons_cell);
+		ast_add_child(node, $1);
+		ast_add_child(node, $2);
+		$$ = node;
+	}
+	;
+
+	definition:
 		'(' DEFINE SYMBOL datatype ')' {
 		printf("%s has been defined\n", $3);
 		}
-		| datatype
 	;
 
 	datatype:
 		NUMBER {
 			printf("%d\n",$1);
-			//$$ = $1;
+			ast_node* node = ast_new_node(number);
+			$$ = node;
 		}
 	|
 		STRING {

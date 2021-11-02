@@ -1,6 +1,7 @@
 #ifndef AST_H
 #define AST_H
 
+#include "symtable.h"
 #include <stdbool.h>
 
 typedef enum ast_node_type {
@@ -19,7 +20,7 @@ typedef enum ast_node_type {
 struct ast_node;
 
 typedef union ast_value{
-	struct ast_node* (*function)(struct ast_node*);
+	struct ast_node* (*function)( struct sym_node*, struct ast_node*);
 	char* string;
 	int number;
 } ast_value;
