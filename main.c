@@ -7,7 +7,11 @@
 #include <readline/history.h>
 
 #include "parse.h"
+#include "symtable.h"
+#include "interp.h"
+#include "ast.h"
 
+sym_node* global_symboltable;
 
 // Flex scan string
 typedef struct yy_buffer_state * YY_BUFFER_STATE;
@@ -15,8 +19,8 @@ extern YY_BUFFER_STATE yy_scan_string(char * str);
 extern void yy_delete_buffer(YY_BUFFER_STATE buffer);
 
 // Argument parsing
-const char *argp_program_version = "myLisp 0.0.1";
-const char *argp_program_bug_address = "apple.link.level@gmail.com";
+const char *argp_program_version = "myLisp 0.0.2";
+const char *argp_program_bug_address = "https://github.com/W1r3W0lf/myLisp/issues";
 static char doc[] = "Wire_Wolf's first stab at writting a lisp.";
 static char args_doc[] = "[FILENAME]...";
 static struct argp_option options[] = {
@@ -44,6 +48,9 @@ static struct argp argp = { options, parse_opt, args_doc, doc, 0,0,0 };
 
 int main(int argc, char** argv){
 
+#ifdef YYDEBUG
+//	yydebug = 1;
+#endif
 
 	struct arguments arguments;
 
@@ -52,6 +59,7 @@ int main(int argc, char** argv){
 
 	argp_parse(&argp, argc, argv, 0,0, &arguments);
 
+	global_symboltable = default_symtable();
 
 	printf("Welcom to myLisp!\n\n");
 

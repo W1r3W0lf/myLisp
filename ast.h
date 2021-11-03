@@ -8,6 +8,7 @@ typedef enum ast_node_type {
 	number,
 	string,
 	symbol,
+	nil,
 	function, // A function written in myLisp
 	function_pointer, // A function that's built into the interpriter
 	quote,
@@ -21,6 +22,7 @@ struct ast_node;
 
 typedef union ast_value{
 	struct ast_node* (*function)( struct sym_node*, struct ast_node*);
+	char* symbol;
 	char* string;
 	int number;
 } ast_value;
@@ -41,5 +43,6 @@ int ast_add_child(ast_node *parent, ast_node *child);
 
 int ast_free(ast_node *root);
 
+void ast_print(ast_node *root);
 
 #endif

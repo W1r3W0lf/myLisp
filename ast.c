@@ -1,6 +1,7 @@
 #include "ast.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 
 // The number of children a node should have based on it's type
@@ -8,6 +9,7 @@ const int children_num[] = {
 	0, // number 1
 	0, // string "string"
 	0, // symbol a
+	0, // nil
 	2, // function (lambda (a b) (+ a b)) -> (a b) (+ a b)
 	1, // function_pointer (+ 1 2) -> (1 2) plus would be inplied
 	1, // quote   '(a b c) -> (a b c)
@@ -65,3 +67,4 @@ int ast_free(ast_node *root){
 
 	return 0;
 }
+

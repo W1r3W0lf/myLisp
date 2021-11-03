@@ -4,7 +4,7 @@ YACC	= bison
 CC  	= gcc
 CXX 	= g++
 
-YFLAGS = -H
+YFLAGS = -H -g
 CFLAGS = -lreadline -Wall -g -lfl
 
 objects = main.o scan.o parse.o symtable.o ast.o interp.o
@@ -19,6 +19,10 @@ interp.o:
 scan.c: scan.l parse.h
 parse.c + parse.h: parse.y
 	$(YACC) $(YFLAGS) parse.y -o parse.c
+	dot -Tpng parse.gv -o parse.png
+
+
+# I'm thinking of writting some unit tests
 
 
 .PHONY: clean

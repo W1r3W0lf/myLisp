@@ -1,7 +1,11 @@
 #include "interp.h"
 
+#include <stdio.h>
+#include <assert.h>
+
 #include "ast.h"
 #include "symtable.h"
+
 
 ast_node* eval(sym_node* symtable, ast_node* root){
 	ast_node* return_node;
@@ -52,10 +56,21 @@ ast_node* apply(sym_node* symtable, ast_node* root){
 }
 
 
-// Input Output
+// Input / Output
 
 ast_node* print(sym_node* symtable, ast_node* root){
 	ast_node* return_node;
+
+	switch ( root->type ) {
+		case number:
+			printf("%d\n",root->value.number);
+			break;
+		case string:
+			printf("%s\n",root->value.string);
+			break;
+		default :
+			printf("Printing Error\n");
+	}
 
 	return return_node;
 }
@@ -64,12 +79,39 @@ ast_node* print(sym_node* symtable, ast_node* root){
 
 ast_node* add(sym_node* symtable, ast_node* root){
 	ast_node* return_node;
+	return_node = ast_new_node(number);
+
+	if ( root->child_count == 0 )
+		fprintf(stderr, "ERROR: Add has no children\n");
+
+	assert( root->child_count > 0 );
+
+	ast_node* active_node;
+	int sum = 0;
+	active_node = root->children[0];
+	while (active_node->child_count > 0){
+
+		// I'm not sure if I should be doing this here.
+		// Should I assume that all cildren of this node have been evaulated?
+		// I think so... I'll come back to this later.
+		switch ( active_node->type ) {
+			case number:
+				sum += active_node->value.number;
+				break;
+			case symbol:
+				break;
+			default:
+				break;
+		}
+
+	}
 
 	return return_node;
 }
 
 ast_node* subtract(sym_node* symtable, ast_node* root){
 	ast_node* return_node;
+	return_node = ast_new_node(number);
 
 
 	return return_node;
@@ -77,12 +119,14 @@ ast_node* subtract(sym_node* symtable, ast_node* root){
 
 ast_node* multiply(sym_node* symtable, ast_node* root){
 	ast_node* return_node;
+	return_node = ast_new_node(number);
 
 	return return_node;
 }
 
 ast_node* devide(sym_node* symtable, ast_node* root){
 	ast_node* return_node;
+	return_node = ast_new_node(number);
 
 	return return_node;
 }
@@ -92,18 +136,21 @@ ast_node* devide(sym_node* symtable, ast_node* root){
 
 ast_node* and(sym_node* symtable, ast_node* root){
 	ast_node* return_node;
+	return_node = ast_new_node(number);
 
 	return return_node;
 }
 
 ast_node* or(sym_node* symtable, ast_node* root){
 	ast_node* return_node;
+	return_node = ast_new_node(number);
 
 	return return_node;
 }
 
 ast_node* not(sym_node* symtable, ast_node* root){
 	ast_node* return_node;
+	return_node = ast_new_node(number);
 
 	return return_node;
 }

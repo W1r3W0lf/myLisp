@@ -1,11 +1,11 @@
 %{
 	#include <stdio.h>
+	#include <string.h>
 
 	#include "ast.h"
 
 	extern int yylex();
 	extern int yyparse();
-
 	void yyerror(const char *s);
 %}
 
@@ -28,7 +28,6 @@
 
 	statement:
 		datatype
-	|	definition
 	|	cons
 	;
 
@@ -56,65 +55,48 @@
 		ast_add_child(node, $2);
 		$$ = node;
 	}
-	;
-
-	definition:
-		'(' DEFINE SYMBOL datatype ')' {
-		printf("%s has been defined\n", $3);
-		}
+	|	cons
+	|	list cons
 	;
 
 	datatype:
 		NUMBER {
 			printf("%d\n",$1);
 			ast_node* node = ast_new_node(number);
+			node->value.number = $1;
 			$$ = node;
 		}
 	|
 		STRING {
 			printf("%s\n", $1);
-			//$$ = $1;
+			ast_node* node = ast_new_node(string);
+			node->value.string = strdup($1);
+			$$ = node;
 			free($1);
 		}
 	|
 		SYMBOL {
-			printf("Error: %s is undefined\n", $1);
+			ast_node* node = ast_new_node(symbol);
+			node->value.symbol = strdup($1);
+			$$ = node;
 			free($1);
 		}
+	|	NIL {
+			ast_node* node = ast_new_node(nil);
+			$$ = node;
+	}
 	;
-
 
 %%
-
 /*
-	// I'm trying something out, so I'm gonna keep this here for a bit
-
-	mylisp:
-	expression
-	| expression expression
-	;
-
+	Defining will be done by the intrpriter
+	
 	definition:
-	'(' DEFINE SYMBOL opperandlist expression ')' {
-
-	}
-
-	expression:
-	'(' SYMBOL opperandlist ')' {
-
-	}
-	;
-
-	opperandlist:
-	opperand
-	| opperand opperand
-	;
-
-	opperand:
-		SYMBOL
+		'(' DEFINE SYMBOL datatype ')' {
+		printf("%s has been defined\n", $3);
+		}
 	;
 */
-
 
 void yyerror(const char *s){
 	fprintf(stderr, "Ooops there was a error : %s\n", s);
