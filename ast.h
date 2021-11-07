@@ -4,6 +4,7 @@
 #include "symtable.h"
 #include <stdbool.h>
 
+
 typedef enum ast_node_type {
 	number,
 	string,

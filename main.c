@@ -12,6 +12,7 @@
 #include "ast.h"
 
 sym_node* global_symboltable;
+ast_node* ast;
 
 // Flex scan string
 typedef struct yy_buffer_state * YY_BUFFER_STATE;
@@ -63,6 +64,8 @@ int main(int argc, char** argv){
 
 	printf("Welcom to myLisp!\n\n");
 
+	global_symboltable = NULL;
+	ast = NULL;
 
 	while(1){
 		char* input = readline("myLisp> ");
@@ -72,6 +75,8 @@ int main(int argc, char** argv){
 		add_history(input);
 
 		yyparse();
+
+		eval(global_symboltable, ast);
 
 		yy_delete_buffer(buffer);
 

@@ -4,6 +4,9 @@
 
 	#include "ast.h"
 
+	extern sym_node* global_symboltable;
+	extern ast_node* ast;
+
 	extern int yylex();
 	extern int yyparse();
 	void yyerror(const char *s);
@@ -16,19 +19,43 @@
 	struct ast_node* ast;
 }
 
-%token <int_number> NUMBER
-%token <symbol> SYMBOL
+%token <ast> NUMBER
+%token <ast> SYMBOL
 %token <string> STRING
 %type <ast> datatype
 %type <ast> cons
 %type <ast> list
+%type <ast> definition
+
 %token DEFINE COND NIL
 
 %%
 
 	statement:
-		datatype
+		definition
+	|	condition
+	|	datatype
 	|	cons
+	;
+
+	definition:
+		'(' DEFINE SYMBOL datatype ')' {
+		ast_node* node = ast_new_node(definition);
+		ast_add_child(node, $3);
+		ast_add_child(node, $4);
+		$$ = node;
+		ast = node;
+		printf("DEFINING %s",$3->value.symbol);
+		printf("%s has been defined\n", $3);
+		}
+	;
+	
+	condition:
+		'(' COND list')' {
+			ast_node* node = ast_new_node(cons_cell);
+			ast_add_child(node, $3);
+
+		}
 	;
 
 	cons:
@@ -78,6 +105,7 @@
 		SYMBOL {
 			ast_node* node = ast_new_node(symbol);
 			node->value.symbol = strdup($1);
+			printf("Symbol %s", node->value.symbol);
 			$$ = node;
 			free($1);
 		}
@@ -88,15 +116,6 @@
 	;
 
 %%
-/*
-	Defining will be done by the intrpriter
-	
-	definition:
-		'(' DEFINE SYMBOL datatype ')' {
-		printf("%s has been defined\n", $3);
-		}
-	;
-*/
 
 void yyerror(const char *s){
 	fprintf(stderr, "Ooops there was a error : %s\n", s);

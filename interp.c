@@ -12,24 +12,44 @@ ast_node* eval(sym_node* symtable, ast_node* root){
 
 	switch( root->type ){
 		case number:
+			printf("NUMBER\n");
+			printf("%d\n", root->value.number);
 		case string:
+			printf("STRING\n");
 		case symbol:
+			printf("SYMBOL\n");
+
+			ast_node* found_symbol = sym_lookup(symtable, root->value.string);
+
+			printf("Evaluating %s\n",root->value.string);
+			eval(symtable,found_symbol);
+
 		case quote:
+			printf("QUOTE\n");
 			return_node = root;
 			break;
 		case cons_cell:
+			printf("CONS\n");
 			break;
 		case function:
+			printf("FUNCTION\n");
 			break;
 		case function_pointer:
+			printf("FUNCTION POINTER\n");
 			return_node = root->value.function(symtable, root->children[0]);
 			break;
 		case definition:
+			printf("DEFINITION\n");
 
+
+			printf("Defining %s\n", root->children[0]->value.symbol);
+
+			symtable = sym_define(symtable, root->children[0]->value.symbol, root->children[1]);
 			// Add symbol to the symbol table
 
 			break;
 		case expression:
+			printf("EXPRESSION\n");
 
 			break;
 		case conditinal:
@@ -39,6 +59,7 @@ ast_node* eval(sym_node* symtable, ast_node* root){
 
 			break;
 		default:
+			fprintf(stderr, "ERROR UNKNOWN AST_NODE type\n");
 			break; //No need for a break here- it's just a place holer.
 	}
 
