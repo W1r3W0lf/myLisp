@@ -38,25 +38,35 @@ START_TEST(test_ast_create_definition) {
 	ast_node* child1;
 	ast_node* child2;
 
-	char symbol_name[] = "test";
 
 	node = ast_new_node(definition);
 
+	// Create the symbol to be used
+	char symbol_name[] = "test";
 	child1 = ast_new_node(symbol);
 	child1->value.symbol = strdup(symbol_name);
 
+	// Create the number to be used
 	child2 = ast_new_node(number);
 	child2->value.number = 1;
 
+	// Add the children to the ast
 	ast_add_child(node, child1);
 	ast_add_child(node, child2);
 
 	ck_assert_int_eq(node->child_count, 2);
 
-
+	// Check the refrince count of the ast
 	ck_assert_int_eq(node->ref_count, 0);
-	ck_assert_int_eq(node->type, string);
-	ast_free(node);
+	ck_assert_int_eq(node->children[0]->ref_count, 0);
+	ck_assert_int_eq(node->children[1]->ref_count, 0);
+
+	ck_assert_int_eq(node->type, definition);
+
+	// Free the ast
+	int free_result = ast_free(node);
+
+	ck_assert_int_eq(free_result, 0);
 
 } END_TEST
 

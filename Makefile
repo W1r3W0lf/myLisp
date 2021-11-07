@@ -24,8 +24,18 @@ parse.c + parse.h: parse.y
 
 # I'm thinking of writting some unit tests
 
+test: ast_test
+	./ast_test
+
+ast_test: ast.o check_ast.o
+	$(CC) -lcheck -g -o $@ $^
+
+check_ast.o: ./tests/check_ast.c
+	$(CC) -lcheck -g -c -o $@ $^
+
+
 
 .PHONY: clean
 clean:
-	rm -r mylisp $(objects) parse.c parse.h scan.c
+	rm -r mylisp $(objects) parse.c parse.h scan.c parse.gv parse.png *.o ast_test
 
