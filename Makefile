@@ -5,13 +5,17 @@ CC  	= gcc
 CXX 	= g++
 
 YFLAGS = -H -g
-CFLAGS = -lreadline -Wall -g -lfl
+CFLAGS = -Wall -g
+
+LIBS = -lreadline -lfl
+
+TEST_LIBS = -lcheck
 
 objects = main.o scan.o parse.o symtable.o ast.o interp.o
 
 
 mylisp: $(objects)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) $(LIBS) -o $@ $^
 main.o: parse.h
 $(objects) :
 scan.c: scan.l parse.h
@@ -21,14 +25,10 @@ parse.c + parse.h: parse.y
 
 
 test: test.o ast.o check_ast.o
-	$(CC) -lcheck -g -Wall -o $@ $^
+	$(CC) $(CFLAGS) $(TEST_LIBS) -o $@ $^
 
-test.o: ./tests/test.c
-	$(CC) -g -Wall -c -o $@ $^
-
-check_ast.o: ./tests/check_ast.c
-	$(CC) -g -Wall  -c -o $@ $^
-
+%.o : ./tests/%.c
+	$(CC) $(CFLAGS) -c -o $@ $^
 
 
 .PHONY: clean
