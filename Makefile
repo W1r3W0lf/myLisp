@@ -20,18 +20,18 @@ parse.c + parse.h: parse.y
 	dot -Tpng parse.gv -o parse.png
 
 
-test: ast_test
-	./ast_test
-
-ast_test: ast.o check_ast.o
+test: test.o ast.o check_ast.o
 	$(CC) -lcheck -g -Wall -o $@ $^
 
+test.o: ./tests/test.c
+	$(CC) -g -Wall -c -o $@ $^
+
 check_ast.o: ./tests/check_ast.c
-	$(CC) -lcheck -g -Wall -c -o $@ $^
+	$(CC) -g -Wall  -c -o $@ $^
 
 
 
 .PHONY: clean
 clean:
-	rm -r mylisp $(objects) parse.c parse.h scan.c parse.gv parse.png *.o ast_test
+	rm -r mylisp $(objects) parse.c parse.h scan.c parse.gv parse.png *.o test
 
