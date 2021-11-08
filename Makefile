@@ -13,25 +13,21 @@ objects = main.o scan.o parse.o symtable.o ast.o interp.o
 mylisp: $(objects)
 	$(CC) $(CFLAGS) -o $@ $^
 main.o: parse.h
-symtable.o:
-ast.o:
-interp.o:
+$(objects) :
 scan.c: scan.l parse.h
 parse.c + parse.h: parse.y
 	$(YACC) $(YFLAGS) parse.y -o parse.c
 	dot -Tpng parse.gv -o parse.png
 
 
-# I'm thinking of writting some unit tests
-
 test: ast_test
 	./ast_test
 
 ast_test: ast.o check_ast.o
-	$(CC) -lcheck -g -o $@ $^
+	$(CC) -lcheck -g -Wall -o $@ $^
 
 check_ast.o: ./tests/check_ast.c
-	$(CC) -lcheck -g -c -o $@ $^
+	$(CC) -lcheck -g -Wall -c -o $@ $^
 
 
 

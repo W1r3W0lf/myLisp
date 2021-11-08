@@ -19,8 +19,8 @@
 	struct ast_node* ast;
 }
 
-%token <ast> NUMBER
-%token <ast> SYMBOL
+%token <int_number> NUMBER
+%token <symbol> SYMBOL
 %token <string> STRING
 %type <ast> datatype
 %type <ast> cons
@@ -40,12 +40,23 @@
 
 	definition:
 		'(' DEFINE SYMBOL datatype ')' {
+		// Define the new parent node
 		ast_node* node = ast_new_node(definition);
-		ast_add_child(node, $3);
+
+		// Create the symbol table
+		ast_node* symbol_node = ast_new_node(symbol);
+		symbol_node->value.symbol = strdup($3);
+
+		// Add the children to the parent node
+		ast_add_child(node, symbol_node);
 		ast_add_child(node, $4);
+
 		$$ = node;
+		
+		// return to the ast
 		ast = node;
-		printf("DEFINING %s",$3->value.symbol);
+
+		printf("DEFINING %s\n",$3);
 		printf("%s has been defined\n", $3);
 		}
 	;
