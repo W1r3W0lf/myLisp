@@ -50,6 +50,9 @@ int ast_add_child(ast_node *parent, ast_node *child){
 
 int ast_free(ast_node *root){
 
+	if (root == NULL)
+		return -1;
+
 	if (root->ref_count > 0)
 		return 1;
 
