@@ -7,49 +7,49 @@
 #include "symtable.h"
 
 
-ast_node* eval(sym_node* symtable, ast_node* root){
+ast_node* eval(sym_node** active_symtable, ast_node* root){
 	ast_node* return_node;
+
+	assert(root != NULL);
 
 	switch( root->type ){
 		case number:
-			printf("NUMBER\n");
 			printf("%d\n", root->value.number);
+			break;
 		case string:
-			printf("STRING\n");
+			break;
 		case symbol:
-			printf("SYMBOL\n");
+			printf("Symbol\n");
+			ast_node* found_symbol = sym_lookup(active_symtable, root->value.string);
 
-			ast_node* found_symbol = sym_lookup(symtable, root->value.string);
+			if (found_symbol){
+				printf("Evaluating %s\n",root->value.string);
+				eval(active_symtable,found_symbol);
+			} else {
+				printf("ERROR definition not found\n");
+			}
 
-			printf("Evaluating %s\n",root->value.string);
-			eval(symtable,found_symbol);
-
+			break;
 		case quote:
-			printf("QUOTE\n");
 			return_node = root;
 			break;
 		case cons_cell:
-			printf("CONS\n");
 			break;
 		case function:
-			printf("FUNCTION\n");
 			break;
 		case function_pointer:
-			printf("FUNCTION POINTER\n");
-			return_node = root->value.function(symtable, root->children[0]);
+			return_node = root->value.function(active_symtable, root->children[0]);
 			break;
 		case definition:
-			printf("DEFINITION\n");
-
 
 			printf("Defining %s\n", root->children[0]->value.symbol);
 
-			symtable = sym_define(symtable, root->children[0]->value.symbol, root->children[1]);
+			*active_symtable = sym_define(active_symtable, root->children[0]->value.symbol, root->children[1]);
 			// Add symbol to the symbol table
+			
 
 			break;
 		case expression:
-			printf("EXPRESSION\n");
 
 			break;
 		case conditinal:

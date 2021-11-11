@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "../ast.h"
-#include "check_ast.h"
 #include <check.h>
 
 

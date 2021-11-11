@@ -22,7 +22,7 @@ typedef enum ast_node_type {
 struct ast_node;
 
 typedef union ast_value{
-	struct ast_node* (*function)( struct sym_node*, struct ast_node*);
+	struct ast_node* (*function)( struct sym_node**, struct ast_node*);
 	char* symbol;
 	char* string;
 	int number;

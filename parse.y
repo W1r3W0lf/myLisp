@@ -34,7 +34,9 @@
 	statement:
 		definition
 	|	condition
-	|	datatype
+	|	datatype {
+		ast = $1;
+	}
 	|	cons
 	;
 
@@ -56,7 +58,6 @@
 		// return to the ast
 		ast = node;
 
-		printf("DEFINING %s\n",$3);
 		printf("%s has been defined\n", $3);
 		}
 	;
@@ -116,7 +117,7 @@
 		SYMBOL {
 			ast_node* node = ast_new_node(symbol);
 			node->value.symbol = strdup($1);
-			printf("Symbol %s", node->value.symbol);
+			printf("Symbol %s\n", node->value.symbol);
 			$$ = node;
 			free($1);
 		}
