@@ -60,11 +60,11 @@ int main(int argc, char** argv){
 
 	argp_parse(&argp, argc, argv, 0,0, &arguments);
 
+	global_symboltable = NULL;
+
 	global_symboltable = default_symtable();
 
 	printf("Welcom to myLisp!\n\n");
-
-	global_symboltable = NULL;
 
 	while(1){
 		char* input = readline("myLisp> ");

@@ -36,6 +36,20 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 			break;
 		case cons_cell:
 			printf("Cons Cell\n");
+
+
+
+			// Convert symbol into function with eval
+			// Or evauluate user function over input data
+
+
+			// Not quite
+			// Add the rest of the list as an opperand to the function
+			ast_node* new_root = eval(active_symtable,root->children[0]);
+			ast_add_child(new_root, root->children[1]);
+
+			eval(active_symtable, new_root);
+
 			break;
 		case function:
 			printf("Evaluating function\n");
@@ -71,6 +85,9 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 
 
 ast_node* apply(sym_node** symtable, ast_node* root){
+
+	assert(root != NULL);
+
 	ast_node* return_node;
 
 	if (root->type == function_pointer){
@@ -84,6 +101,8 @@ ast_node* apply(sym_node** symtable, ast_node* root){
 
 ast_node* print(sym_node** symtable, ast_node* root){
 	ast_node* return_node;
+
+	assert(root != NULL);
 
 	switch ( root->type ) {
 		case number:
@@ -104,6 +123,8 @@ ast_node* print(sym_node** symtable, ast_node* root){
 ast_node* add(sym_node** symtable, ast_node* root){
 	ast_node* return_node;
 	return_node = ast_new_node(number);
+
+	assert(root != NULL);
 
 	if ( root->child_count == 0 )
 		fprintf(stderr, "ERROR: Add has no children\n");
@@ -137,6 +158,7 @@ ast_node* subtract(sym_node** symtable, ast_node* root){
 	ast_node* return_node;
 	return_node = ast_new_node(number);
 
+	assert(root != NULL);
 
 	return return_node;
 }
@@ -145,12 +167,16 @@ ast_node* multiply(sym_node** symtable, ast_node* root){
 	ast_node* return_node;
 	return_node = ast_new_node(number);
 
+	assert(root != NULL);
+
 	return return_node;
 }
 
 ast_node* devide(sym_node** symtable, ast_node* root){
 	ast_node* return_node;
 	return_node = ast_new_node(number);
+
+	assert(root != NULL);
 
 	return return_node;
 }
@@ -162,12 +188,16 @@ ast_node* and(sym_node** symtable, ast_node* root){
 	ast_node* return_node;
 	return_node = ast_new_node(number);
 
+	assert(root != NULL);
+
 	return return_node;
 }
 
 ast_node* or(sym_node** symtable, ast_node* root){
 	ast_node* return_node;
 	return_node = ast_new_node(number);
+
+	assert(root != NULL);
 
 	return return_node;
 }
@@ -176,25 +206,29 @@ ast_node* not(sym_node** symtable, ast_node* root){
 	ast_node* return_node;
 	return_node = ast_new_node(number);
 
+	assert(root != NULL);
+
 	return return_node;
 }
 
 
 sym_node* default_symtable(){
-	sym_node* symtable;
+	sym_node* symtable = NULL;
 
 	static int defualt_function_count = 10;
 
 	char default_names[][10] = { "eval", "apply", "print", "+", "-", "*", "/", "and", "or", "not" };
 	ast_node* (*default_functions[])(sym_node**, ast_node*) = {eval, apply, print, add, subtract, multiply, devide, and, or, not};
 
-
-
 	ast_node *new_function_pointer;
+	char* new_function_name;
 
 	for (int i = 0 ; i < defualt_function_count ; i++){
 		new_function_pointer = ast_new_node(function_pointer);
 		new_function_pointer->value.function = default_functions[i];
+		new_function_name = default_names[i];
+
+		symtable = sym_define(&symtable,new_function_name, new_function_pointer);
 	}
 
 

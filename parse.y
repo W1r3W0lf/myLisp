@@ -27,7 +27,7 @@
 %type <ast> list
 %type <ast> definition
 
-%token DEFINE COND NIL LAMBDA
+%token DEFINE COND NIL LAMBDA QUOTE
 
 %%
 

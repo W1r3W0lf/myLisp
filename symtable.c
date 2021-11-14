@@ -15,8 +15,7 @@ sym_node* sym_define(sym_node** table, char* symbol, ast_node* value){
 	if (*table){
 	// Look for symbol in table
 		sym_node* node = *table;
-		int done = false;
-		while( ! done ){
+		do{
 			// If in the table update the value
 			if (! strcmp(symbol, node->symbol) ){
 				node->value->ref_count--;
@@ -25,9 +24,7 @@ sym_node* sym_define(sym_node** table, char* symbol, ast_node* value){
 				return *table;
 			}
 			node = node->next;
-			if (! node)
-				done = true;
-		}
+		}while( node );
 	}
 
 	// If not in table create new node.
@@ -50,14 +47,11 @@ ast_node* sym_lookup(sym_node** table, char* symbol){
 		return NULL;
 
 	sym_node* node = *table;
-	int done = false;
-	while( ! done ){
+	do {
 		if (! strcmp(symbol, node->symbol))
 			return node->value;
 		node = node->next;
-		if (! node)
-			done = true;
-	}
+	}while( node );
 	return NULL;
 }
 
