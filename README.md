@@ -2,11 +2,12 @@
 
 I am attempting to write a small lisp.
 
-## Language features I plan to add
-- Variable assignment
-- Ability to define functions
-- Conditionals
-- Printing
+## Language features I plan to add, in order of priority
+- [X] Variable assignment
+- [ ] Built in functions
+- [ ] User functions
+- [ ] Function assignment
+- [ ] Conditionals
 
 ## Features I might add after I'm done with the needs.
 - Support for Real numbers
