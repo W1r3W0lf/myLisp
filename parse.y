@@ -92,14 +92,14 @@
 		datatype {
 			$$ = $1;
 		}
-	|	list datatype {
+	|	datatype list {
 		ast_node* node = ast_new_node(cons_cell);
 		ast_add_child(node, $1);
 		ast_add_child(node, $2);
 		$$ = node;
 	}
 	|	cons
-	|	list cons
+	|	cons list
 	;
 
 	datatype:

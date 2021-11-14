@@ -8,7 +8,7 @@
 
 
 ast_node* eval(sym_node** active_symtable, ast_node* root){
-	ast_node* return_node;
+	ast_node* return_node = NULL;
 
 	assert(root != NULL);
 
@@ -25,10 +25,12 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 
 			if (found_symbol){
 				printf("Evaluating %s\n",root->value.string);
-				eval(active_symtable,found_symbol);
+				//eval(active_symtable,found_symbol);
 			} else {
 				printf("ERROR definition not found\n");
 			}
+
+			return_node = found_symbol;
 
 			break;
 		case quote:
@@ -42,13 +44,18 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 			// Convert symbol into function with eval
 			// Or evauluate user function over input data
 
+			ast_node* new_root = root->children[0];
+
+			new_root = eval(active_symtable,root->children[0]);
 
 			// Not quite
 			// Add the rest of the list as an opperand to the function
-			ast_node* new_root = eval(active_symtable,root->children[0]);
 			ast_add_child(new_root, root->children[1]);
 
-			eval(active_symtable, new_root);
+			ast_node* result = eval(active_symtable, new_root);
+
+			printf("RESULT %d\n", result->value.number);
+			
 
 			break;
 		case function:
@@ -133,23 +140,26 @@ ast_node* add(sym_node** symtable, ast_node* root){
 
 	ast_node* active_node;
 	int sum = 0;
-	active_node = root->children[0];
+	active_node = root;
 	while (active_node->child_count > 0){
 
 		// I'm not sure if I should be doing this here.
 		// Should I assume that all cildren of this node have been evaulated?
 		// I think so... I'll come back to this later.
-		switch ( active_node->type ) {
+		switch ( active_node->children[0]->type ) {
 			case number:
-				sum += active_node->value.number;
+				sum += active_node->children[0]->value.number;
 				break;
 			case symbol:
 				break;
 			default:
 				break;
 		}
+		active_node = active_node->children[1];
 
 	}
+
+	return_node->value.number = sum;
 
 	return return_node;
 }
