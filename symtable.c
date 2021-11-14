@@ -8,19 +8,25 @@
 
 sym_node* sym_define(sym_node** table, char* symbol, ast_node* value){
 
+	// The symbol table must have a pointer to return the results to
+	assert(table != NULL);
+
 	// If no exsisting table skip looking in the table.
 	if (*table){
 	// Look for symbol in table
 		sym_node* node = *table;
-		while( node->next ){
+		int done = false;
+		while( ! done ){
 			// If in the table update the value
-			if ( strcmp(symbol, node->symbol) ){
+			if (! strcmp(symbol, node->symbol) ){
 				node->value->ref_count--;
 				ast_free(node->value); // Try and free up the now orphied ast
 				node->value = value;
 				return *table;
 			}
 			node = node->next;
+			if (! node)
+				done = true;
 		}
 	}
 
@@ -43,12 +49,14 @@ ast_node* sym_lookup(sym_node** table, char* symbol){
 	assert(*table);
 
 	sym_node* node = *table;
-	do{
+	int done = false;
+	while( ! done ){
 		if (! strcmp(symbol, node->symbol))
 			return node->value;
-		else
-			node = node->next;
-	}while( node->next );
+		node = node->next;
+		if (! node)
+			done = true;
+	}
 	return NULL;
 }
 
