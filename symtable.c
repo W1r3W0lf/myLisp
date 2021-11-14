@@ -46,7 +46,8 @@ sym_node* sym_define(sym_node** table, char* symbol, ast_node* value){
 ast_node* sym_lookup(sym_node** table, char* symbol){
 
 	// Table must not be null
-	assert(*table);
+	if(! *table)
+		return NULL;
 
 	sym_node* node = *table;
 	int done = false;

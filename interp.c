@@ -17,6 +17,7 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 			printf("%d\n", root->value.number);
 			break;
 		case string:
+			printf("String\n");
 			break;
 		case symbol:
 			printf("Symbol\n");
@@ -34,8 +35,10 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 			return_node = root;
 			break;
 		case cons_cell:
+			printf("Cons Cell\n");
 			break;
 		case function:
+			printf("Evaluating function\n");
 			break;
 		case function_pointer:
 			return_node = root->value.function(active_symtable, root->children[0]);
@@ -67,7 +70,7 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 }
 
 
-ast_node* apply(sym_node* symtable, ast_node* root){
+ast_node* apply(sym_node** symtable, ast_node* root){
 	ast_node* return_node;
 
 	if (root->type == function_pointer){
@@ -79,7 +82,7 @@ ast_node* apply(sym_node* symtable, ast_node* root){
 
 // Input / Output
 
-ast_node* print(sym_node* symtable, ast_node* root){
+ast_node* print(sym_node** symtable, ast_node* root){
 	ast_node* return_node;
 
 	switch ( root->type ) {
@@ -98,7 +101,7 @@ ast_node* print(sym_node* symtable, ast_node* root){
 
 // Arithmetic functions
 
-ast_node* add(sym_node* symtable, ast_node* root){
+ast_node* add(sym_node** symtable, ast_node* root){
 	ast_node* return_node;
 	return_node = ast_new_node(number);
 
@@ -130,7 +133,7 @@ ast_node* add(sym_node* symtable, ast_node* root){
 	return return_node;
 }
 
-ast_node* subtract(sym_node* symtable, ast_node* root){
+ast_node* subtract(sym_node** symtable, ast_node* root){
 	ast_node* return_node;
 	return_node = ast_new_node(number);
 
@@ -138,14 +141,14 @@ ast_node* subtract(sym_node* symtable, ast_node* root){
 	return return_node;
 }
 
-ast_node* multiply(sym_node* symtable, ast_node* root){
+ast_node* multiply(sym_node** symtable, ast_node* root){
 	ast_node* return_node;
 	return_node = ast_new_node(number);
 
 	return return_node;
 }
 
-ast_node* devide(sym_node* symtable, ast_node* root){
+ast_node* devide(sym_node** symtable, ast_node* root){
 	ast_node* return_node;
 	return_node = ast_new_node(number);
 
@@ -155,21 +158,21 @@ ast_node* devide(sym_node* symtable, ast_node* root){
 
 // Logical Operators
 
-ast_node* and(sym_node* symtable, ast_node* root){
+ast_node* and(sym_node** symtable, ast_node* root){
 	ast_node* return_node;
 	return_node = ast_new_node(number);
 
 	return return_node;
 }
 
-ast_node* or(sym_node* symtable, ast_node* root){
+ast_node* or(sym_node** symtable, ast_node* root){
 	ast_node* return_node;
 	return_node = ast_new_node(number);
 
 	return return_node;
 }
 
-ast_node* not(sym_node* symtable, ast_node* root){
+ast_node* not(sym_node** symtable, ast_node* root){
 	ast_node* return_node;
 	return_node = ast_new_node(number);
 
@@ -183,7 +186,7 @@ sym_node* default_symtable(){
 	static int defualt_function_count = 10;
 
 	char default_names[][10] = { "eval", "apply", "print", "+", "-", "*", "/", "and", "or", "not" };
-	ast_node* (*default_functions[])(sym_node*, ast_node*) = {eval, apply, print, add, subtract, multiply, devide, and, or, not};
+	ast_node* (*default_functions[])(sym_node**, ast_node*) = {eval, apply, print, add, subtract, multiply, devide, and, or, not};
 
 
 

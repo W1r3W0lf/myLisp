@@ -27,7 +27,7 @@
 %type <ast> list
 %type <ast> definition
 
-%token DEFINE COND NIL
+%token DEFINE COND NIL LAMBDA
 
 %%
 
@@ -37,7 +37,9 @@
 	|	datatype {
 		ast = $1;
 	}
-	|	cons
+	|	cons {
+		ast = $1;
+	}
 	;
 
 	definition:
@@ -61,6 +63,8 @@
 		printf("%s has been defined\n", $3);
 		}
 	;
+
+
 	
 	condition:
 		'(' COND list')' {
@@ -76,7 +80,7 @@
 			ast_add_child(node, $2);
 			ast_add_child(node, $4);
 			printf("cons\n");
-			//$$ = node;
+			$$ = node;
 		}
 	|	'(' list ')' {
 			printf("list\n");
@@ -125,6 +129,13 @@
 			ast_node* node = ast_new_node(nil);
 			$$ = node;
 	}
+	|	'(' LAMBDA '(' list ')' '(' list ')' ')' {
+			ast_node* node = ast_new_node(definition);
+			printf("Function\n");
+			ast_add_child(node, $4);
+			ast_add_child(node, $7);
+			$$ = node;
+		}
 	;
 
 %%

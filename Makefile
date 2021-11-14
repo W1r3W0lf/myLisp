@@ -4,7 +4,7 @@ YACC	= bison
 CC  	= gcc
 CXX 	= g++
 
-YFLAGS = -H -g
+YFLAGS = -H -g -Wcounterexamples
 CFLAGS = -Wall -g
 
 LIBS = -lreadline -lfl
@@ -36,5 +36,5 @@ test: $(test_objects)
 
 .PHONY: clean
 clean:
-	rm -r mylisp test-mylisp $(objects) $(test_objects) parse.c parse.h scan.c parse.gv parse.png
+	rm -r mylisp test $(objects) $(test_objects) parse.c parse.h scan.c parse.gv parse.png
 
