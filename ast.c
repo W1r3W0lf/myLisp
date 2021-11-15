@@ -9,7 +9,6 @@ const int children_num[] = {
 	0, // number 1
 	0, // string "string"
 	0, // symbol a
-	0, // nil
 	2, // function (lambda (a b) (+ a b)) -> (a b) (+ a b)
 	1, // function_pointer (+ 1 2) -> (1 2) plus would be inplied
 	1, // quote   '(a b c) -> (a b c)

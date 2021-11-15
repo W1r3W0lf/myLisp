@@ -9,7 +9,6 @@ typedef enum ast_node_type {
 	number,
 	string,
 	symbol,
-	nil,
 	function, // A function written in myLisp
 	function_pointer, // A function that's built into the interpriter
 	quote,
@@ -35,8 +34,6 @@ typedef struct ast_node{
 	int child_count; // How many children does this node currently have
 	int ref_count; // How many times has this node been refrinced, if it is grater then 1 at the time of deletion it will not be deleted.
 } ast_node;
-
-// A nil value is reprented as a NULL pointer.
 
 ast_node* ast_new_node(ast_node_type type);
 
