@@ -27,7 +27,6 @@
 %type <ast> list_content
 %type <ast> definition
 %type <ast> expression
-%type <ast> condition
 
 %token DEFINE COND NIL LAMBDA QUOTE
 
@@ -43,16 +42,13 @@
 		definition {
 		ast = $1;
 	}
-	|	condition {
+	|	datatype {
 		ast = $1;
 	}
 	|	QUOTE datatype {
 		ast_node* node = ast_new_node(quote);
 		ast_add_child(node, $2);
 		$$ = node;
-	}
-	|	datatype {
-		ast = $1;
 	}
 	;
 
@@ -73,12 +69,6 @@
 		}
 	;
 
-	condition:
-		'(' COND list ')' {
-			ast_node* node = ast_new_node(conditinal);
-			ast_add_child(node, $3);
-		}
-	;
 
 	datatype:
 		list {
@@ -112,6 +102,10 @@
 			ast_add_child(node, $3);
 			ast_add_child(node, $4);
 			$$ = node;
+		}
+	|	'(' COND list ')' {
+			ast_node* node = ast_new_node(conditinal);
+			ast_add_child(node, $3);
 		}
 	;
 
