@@ -54,6 +54,7 @@
 
 	definition:
 		'(' DEFINE SYMBOL expression ')' {
+		// This can be done in eval
 		// Define the new parent node
 		ast_node* node = ast_new_node(definition);
 
@@ -69,39 +70,40 @@
 		}
 	;
 
-
 	datatype:
 		list {
 		$$ = $1;
 		}
 	|	NUMBER {
-			ast_node* node = ast_new_node(number);
-			node->value.number = $1;
-			$$ = node;
+		ast_node* node = ast_new_node(number);
+		node->value.number = $1;
+		$$ = node;
 		}
 	|
 		STRING {
-			ast_node* node = ast_new_node(string);
-			node->value.string = strdup($1);
-			$$ = node;
-			free($1);
+		ast_node* node = ast_new_node(string);
+		node->value.string = strdup($1);
+		$$ = node;
+		free($1);
 		}
 	|
 		SYMBOL {
-			ast_node* node = ast_new_node(symbol);
-			node->value.symbol = strdup($1);
-			$$ = node;
-			free($1);
+		ast_node* node = ast_new_node(symbol);
+		node->value.symbol = strdup($1);
+		$$ = node;
+		free($1);
 		}
 	|	'(' LAMBDA list list ')' {
-			ast_node* node = ast_new_node(definition);
-			ast_add_child(node, $3);
-			ast_add_child(node, $4);
-			$$ = node;
+		// This can be done in eval
+		ast_node* node = ast_new_node(definition);
+		ast_add_child(node, $3);
+		ast_add_child(node, $4);
+		$$ = node;
 		}
 	|	'(' COND list ')' {
-			ast_node* node = ast_new_node(conditinal);
-			ast_add_child(node, $3);
+		// This can be done in eval
+		ast_node* node = ast_new_node(conditinal);
+		ast_add_child(node, $3);
 		}
 	;
 
