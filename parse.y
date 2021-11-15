@@ -40,39 +40,19 @@
 	;
 
 	expression:
-		list {
-		ast = $1;
-		}
-	|	definition {
+		definition {
 		ast = $1;
 	}
 	|	condition {
 		ast = $1;
 	}
-	|	datatype {
-		ast = $1;
-	}
-	;
-
-	list:
-		'(' list_content ')' {
-			$$ = $2;
-		}
-	;
-
-	list_content:
-		expression {
-		ast_node* node = ast_new_node(cons_cell);
-		ast_node* nil_node = ast_new_node(nil);
-		ast_add_child(node, $1);
-		ast_add_child(node, nil_node);
-		$$ = node;
-		}
-	|	expression list_content {
-		ast_node* node = ast_new_node(cons_cell);
-		ast_add_child(node, $1);
+	|	QUOTE datatype {
+		ast_node* node = ast_new_node(quote);
 		ast_add_child(node, $2);
 		$$ = node;
+	}
+	|	datatype {
+		ast = $1;
 	}
 	;
 
@@ -93,7 +73,6 @@
 		}
 	;
 
-
 	condition:
 		'(' COND list ')' {
 			ast_node* node = ast_new_node(conditinal);
@@ -101,9 +80,11 @@
 		}
 	;
 
-
 	datatype:
-		NUMBER {
+		list {
+		$$ = $1;
+		}
+	|	NUMBER {
 			ast_node* node = ast_new_node(number);
 			node->value.number = $1;
 			$$ = node;
@@ -132,6 +113,28 @@
 			ast_add_child(node, $4);
 			$$ = node;
 		}
+	;
+
+	list:
+		'(' list_content ')' {
+			$$ = $2;
+		}
+	;
+
+	list_content:
+		expression {
+		ast_node* node = ast_new_node(cons_cell);
+		ast_node* nil_node = ast_new_node(nil);
+		ast_add_child(node, $1);
+		ast_add_child(node, nil_node);
+		$$ = node;
+		}
+	|	expression list_content {
+		ast_node* node = ast_new_node(cons_cell);
+		ast_add_child(node, $1);
+		ast_add_child(node, $2);
+		$$ = node;
+	}
 	;
 
 %%
