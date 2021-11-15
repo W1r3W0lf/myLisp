@@ -90,7 +90,11 @@
 
 	list:
 		datatype {
-			$$ = $1;
+		ast_node* node = ast_new_node(cons_cell);
+		ast_node* nil_node = ast_new_node(nil);
+		ast_add_child(node, $1);
+		ast_add_child(node, nil_node);
+		$$ = node;
 		}
 	|	datatype list {
 		ast_node* node = ast_new_node(cons_cell);
