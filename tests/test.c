@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "check_ast.h"
 #include "check_symtable.h"
+#include "check_interp.h"
+#include "check_parse.h"
 
 int main(int argc, char** argv){
 	int faild_count = 0;

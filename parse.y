@@ -32,6 +32,12 @@
 %%
 
 	statement:
+		datatype
+	|	expression
+
+	;
+
+	expression:
 		definition
 	|	condition
 	|	datatype {
@@ -68,7 +74,7 @@
 	
 	condition:
 		'(' COND list')' {
-			ast_node* node = ast_new_node(cons_cell);
+			ast_node* node = ast_new_node(conditinal);
 			ast_add_child(node, $3);
 
 		}

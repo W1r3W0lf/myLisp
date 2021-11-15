@@ -15,9 +15,11 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 	switch( root->type ){
 		case number:
 			printf("%d\n", root->value.number);
+			return root;
 			break;
 		case string:
 			printf("String\n");
+			return root;
 			break;
 		case symbol:
 			printf("Symbol\n");
@@ -30,11 +32,11 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 				printf("ERROR definition not found\n");
 			}
 
-			return_node = found_symbol;
+			return found_symbol;
 
 			break;
 		case quote:
-			return_node = root;
+			return root->children[0];
 			break;
 		case cons_cell:
 			printf("Cons Cell\n");
@@ -59,9 +61,13 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 
 			break;
 		case function:
+			// Returns a procedure
 			printf("Evaluating function\n");
 			break;
 		case function_pointer:
+			// Returns a procedure
+			
+			// Remove this and have it just return the procedure
 			return_node = root->value.function(active_symtable, root->children[0]);
 			break;
 		case definition:
@@ -74,6 +80,8 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 
 			break;
 		case expression:
+			// I don't know if I need/want this.
+			// I'll leave it here for now, in case I decide to go down this route again.
 
 			break;
 		case conditinal:
