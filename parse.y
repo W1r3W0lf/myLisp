@@ -23,33 +23,61 @@
 %token <symbol> SYMBOL
 %token <string> STRING
 %type <ast> datatype
-%type <ast> cons
 %type <ast> list
+%type <ast> list_content
 %type <ast> definition
+%type <ast> expression
+%type <ast> condition
 
 %token DEFINE COND NIL LAMBDA QUOTE
 
 %%
 
 	statement:
-		datatype
-	|	expression
-
+		expression {
+		ast = $1;
+	}
 	;
 
 	expression:
-		definition
-	|	condition
+		list {
+		ast = $1;
+		}
+	|	definition {
+		ast = $1;
+	}
+	|	condition {
+		ast = $1;
+	}
 	|	datatype {
 		ast = $1;
 	}
-	|	cons {
-		ast = $1;
+	;
+
+	list:
+		'(' list_content ')' {
+			$$ = $2;
+		}
+	;
+
+	list_content:
+		expression {
+		ast_node* node = ast_new_node(cons_cell);
+		ast_node* nil_node = ast_new_node(nil);
+		ast_add_child(node, $1);
+		ast_add_child(node, nil_node);
+		$$ = node;
+		}
+	|	expression list_content {
+		ast_node* node = ast_new_node(cons_cell);
+		ast_add_child(node, $1);
+		ast_add_child(node, $2);
+		$$ = node;
 	}
 	;
 
 	definition:
-		'(' DEFINE SYMBOL datatype ')' {
+		'(' DEFINE SYMBOL expression ')' {
 		// Define the new parent node
 		ast_node* node = ast_new_node(definition);
 
@@ -62,66 +90,26 @@
 		ast_add_child(node, $4);
 
 		$$ = node;
-		
-		// return to the ast
-		ast = node;
-
-		printf("%s has been defined\n", $3);
 		}
 	;
 
 
-	
 	condition:
-		'(' COND list')' {
+		'(' COND list ')' {
 			ast_node* node = ast_new_node(conditinal);
 			ast_add_child(node, $3);
-
 		}
 	;
 
-	cons:
-		'(' datatype '.' datatype ')' {
-			ast_node* node = ast_new_node(cons_cell);
-			ast_add_child(node, $2);
-			ast_add_child(node, $4);
-			printf("cons\n");
-			$$ = node;
-		}
-	|	'(' list ')' {
-			printf("list\n");
-			$$ = $2;
-		}
-	;
-
-	list:
-		datatype {
-		ast_node* node = ast_new_node(cons_cell);
-		ast_node* nil_node = ast_new_node(nil);
-		ast_add_child(node, $1);
-		ast_add_child(node, nil_node);
-		$$ = node;
-		}
-	|	datatype list {
-		ast_node* node = ast_new_node(cons_cell);
-		ast_add_child(node, $1);
-		ast_add_child(node, $2);
-		$$ = node;
-	}
-	|	cons
-	|	cons list
-	;
 
 	datatype:
 		NUMBER {
-			printf("%d\n",$1);
 			ast_node* node = ast_new_node(number);
 			node->value.number = $1;
 			$$ = node;
 		}
 	|
 		STRING {
-			printf("%s\n", $1);
 			ast_node* node = ast_new_node(string);
 			node->value.string = strdup($1);
 			$$ = node;
@@ -131,7 +119,6 @@
 		SYMBOL {
 			ast_node* node = ast_new_node(symbol);
 			node->value.symbol = strdup($1);
-			printf("Symbol %s\n", node->value.symbol);
 			$$ = node;
 			free($1);
 		}
@@ -139,11 +126,10 @@
 			ast_node* node = ast_new_node(nil);
 			$$ = node;
 	}
-	|	'(' LAMBDA '(' list ')' '(' list ')' ')' {
+	|	'(' LAMBDA list list ')' {
 			ast_node* node = ast_new_node(definition);
-			printf("Function\n");
+			ast_add_child(node, $3);
 			ast_add_child(node, $4);
-			ast_add_child(node, $7);
 			$$ = node;
 		}
 	;
