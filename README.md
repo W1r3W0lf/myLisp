@@ -7,8 +7,8 @@ I'm basing this off of what I know about Scheme and other lisps.
 ## Language features I plan to add, in order of priority
 - [X] Variable assignment
 - [X] Built in functions
-- [ ] User functions
-- [ ] Function assignment
+- [X] User functions
+- [X] Function assignment
 - [ ] Conditionals
 
 
