@@ -12,7 +12,7 @@ LIBS = -lreadline -lfl
 TEST_LIBS = -lcheck
 
 objects = main.o scan.o parse.o symtable.o ast.o interp.o
-test_objects = test.o ast.o check_ast.o symtable.o check_symtable.o check_interp.o interp.o check_parse.o parse.h parse.o scan.o
+test_objects = test.o ast.o check_ast.o symtable.o check_symtable.o check_interp.o interp.o
 
 
 mylisp: $(objects)
@@ -26,7 +26,7 @@ parse.c + parse.h: parse.y
 
 
 test: $(test_objects)
-	$(CC) $(CFLAGS) $(LIBS) $(TEST_LIBS) -o $@ $^
+	$(CC) $(CFLAGS) $(TEST_LIBS) -o $@ $^
 	./$@
 
 

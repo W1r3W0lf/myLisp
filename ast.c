@@ -15,7 +15,7 @@ const int children_num[] = {
 	2, // cons_cell (a . b) -> (a . b)
 	3, // definition (define (a b c) (+ b c) ) -> a (b c) (+ b c)
 	2, // expression (+ 1 2) -> + (1 2)
-	1, // conditinal (cond ((eq 1 2) 2) ((eq 1 1) 1) ) -> (((eq 1 2) 2) ((eq 1 1) 1))
+	3, // conditinal (if x y z) -> x y z
 };
 
 

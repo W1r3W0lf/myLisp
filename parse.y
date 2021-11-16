@@ -28,7 +28,7 @@
 %type <ast> definition
 %type <ast> expression
 
-%token DEFINE COND LAMBDA QUOTE
+%token DEFINE IF LAMBDA QUOTE
 
 %%
 
@@ -100,10 +100,13 @@
 		ast_add_child(node, $4);
 		$$ = node;
 		}
-	|	'(' COND list ')' {
+	|	'(' IF datatype datatype datatype ')' {
 		// This can be done in eval
 		ast_node* node = ast_new_node(conditinal);
 		ast_add_child(node, $3);
+		ast_add_child(node, $4);
+		ast_add_child(node, $5);
+		$$ = node;
 		}
 	;
 

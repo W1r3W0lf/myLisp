@@ -20,7 +20,7 @@ extern YY_BUFFER_STATE yy_scan_string(char * str);
 extern void yy_delete_buffer(YY_BUFFER_STATE buffer);
 
 // Argument parsing
-const char *argp_program_version = "myLisp 0.0.2";
+const char *argp_program_version = "myLisp 0.5.0";
 const char *argp_program_bug_address = "https://github.com/W1r3W0lf/myLisp/issues";
 static char doc[] = "Wire_Wolf's first stab at writting a lisp.";
 static char args_doc[] = "[FILENAME]...";

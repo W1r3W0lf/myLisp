@@ -39,12 +39,18 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 			// Add the rest of the list as an opperand to the function
 			if (new_root->type == function_pointer){
 
+				ast_node* (*func)(sym_node**, ast_node*) = new_root->value.function;
+
+				new_root = ast_new_node(function_pointer);
+				new_root->value.function = func;
+
 				ast_add_child(new_root, root->children[1]);
 
 				result = eval(active_symtable, new_root);
+				ast_free(new_root);
 
 				// Remove the children
-				ast_remove_child(new_root);
+				//ast_remove_child(new_root);
 
 				return result;
 			} else if (new_root->type == function) {
@@ -111,8 +117,14 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 			break;
 		case conditinal:
 
-			// Loop though conditions until one is true
-			// Evauate the True path
+			printf("");
+
+			ast_node* condition = eval(active_symtable, root->children[0]);
+
+			if (condition->value.number)
+				return eval(active_symtable, root->children[1]);
+			else
+				return eval(active_symtable, root->children[2]);
 
 			break;
 		default:
@@ -189,12 +201,13 @@ ast_node* add(sym_node** symtable, ast_node* root){
 			case number:
 				sum += active_node->value.number;
 				break;
+			case cons_cell:
 			case symbol:
 				active_node = eval(symtable, active_node);
 				if (active_node->type == number)
 					sum += active_node->value.number;
 				else
-					printf("ERROR symbol returned a non-number");
+					printf("ERROR symbol returned a non-number\n");
 				break;
 			default:
 				printf("ERROR a non-number has made it into add\n");

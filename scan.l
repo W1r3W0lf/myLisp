@@ -7,7 +7,7 @@
 
 %%
 define						{ return DEFINE; }
-cond						{ return COND; }
+if							{ return IF; }
 lambda						{ return LAMBDA; }
 '							{ return QUOTE; }
 -?[0-9]+					{ yylval.int_number = atoi(yytext); return NUMBER; }
