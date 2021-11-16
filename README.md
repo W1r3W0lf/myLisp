@@ -1,14 +1,39 @@
 # myLisp
 
-I am using this project to learn how to write an interpreter.
-This is my first attempt at writing a real programming language, so it will probably take me a while to figure out.
-I'm basing this off of what I know about Scheme and other lisps.
+This project was a challenge to myself. I wanted to see if I could write my own programming language without taking a class or following a tutorial.
 
-## Language features I plan to add, in order of priority
-- [X] Variable assignment
-- [X] Built in functions
-- [X] User functions
-- [X] Function assignment
-- [X] Conditionals
+The current version of myLisp is missing features that most lisps provide.
 
+I may come back to this project later to clean up the code, add more comments, and work on it's feature set.
+
+I would like to one day turn it into a R7RS-small Scheme. I would also want to change it's name if I decide to do that.
+
+## Language features that myLisp has
+### Variable assignment
+
+```
+(define a 1)
+```
+
+### Built in functions
+
+```
+(+ 1 1)
+```
+
+### User functions
+
+```
+(lambda (b) (+ b b) )
+```
+
+### Function assignment
+```
+(define c (lambda (b) (+ b b) ))
+```
+### Conditionals
+
+```
+(if (+ -1 1) 'a 'b)
+```
 
