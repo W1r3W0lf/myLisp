@@ -111,6 +111,9 @@
 		'(' list_content ')' {
 			$$ = $2;
 		}
+		| '('')' {
+			$$ = ast_new_node(cons_cell);
+		}
 	;
 
 	list_content:

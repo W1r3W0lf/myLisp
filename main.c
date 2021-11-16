@@ -66,6 +66,8 @@ int main(int argc, char** argv){
 
 	printf("Welcom to myLisp!\n\n");
 
+	ast_node* result = NULL;
+
 	while(1){
 		char* input = readline("myLisp> ");
 
@@ -78,7 +80,8 @@ int main(int argc, char** argv){
 
 		yyparse();
 
-		eval(&global_symboltable, ast);
+		result = eval(&global_symboltable, ast);
+		print(&global_symboltable, result);
 
 		yy_delete_buffer(buffer);
 

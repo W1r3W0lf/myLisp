@@ -13,10 +13,8 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 
 	switch( root->type ){
 		case number:
-			printf("%d\n", root->value.number);
 			return root;
 		case string:
-			printf("%s\n",root->value.string);
 			return root;
 		case symbol:
 			return sym_lookup(active_symtable, root->value.string);
@@ -25,22 +23,18 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 		case cons_cell:
 			printf("");
 
+			if (root->child_count == 0)
+				return root;
 
-			// Convert symbol into function with eval
-			// Or evauluate user function over input data
-			ast_node* new_root = root->children[0];
-
-			// Turn the symbol into a function or function pointer
-			new_root = eval(active_symtable,root->children[0]);
+			// Eval the CAR of the cons
+			ast_node* new_root = eval(active_symtable,root->children[0]);
 
 			// Not quite
 			// Add the rest of the list as an opperand to the function
-			ast_add_child(new_root, root->children[1]);
+			if (new_root->type == function_pointer)
+				ast_add_child(new_root, root->children[1]);
 
 			ast_node* result = eval(active_symtable, new_root);
-
-			eval(active_symtable,result);
-			printf("RESULT %d\n", result->value.number);
 		
 			return result;
 		case function:
@@ -51,7 +45,6 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 			
 			// Remove this and have it just return the procedure
 			return root->value.function(active_symtable, root->children[0]);
-			return root;
 		case definition:
 
 			*active_symtable = sym_define(active_symtable, root->children[0]->value.symbol, root->children[1]);
@@ -101,6 +94,11 @@ ast_node* print(sym_node** symtable, ast_node* root){
 	assert(root != NULL);
 
 	switch ( root->type ) {
+		case cons_cell:
+			if (root->child_count == 2){
+				print(symtable, root->children[0]);
+				print(symtable, root->children[1]);
+			}
 		case number:
 			printf("%d\n",root->value.number);
 			break;
@@ -140,8 +138,10 @@ ast_node* add(sym_node** symtable, ast_node* root){
 				sum += active_node->children[0]->value.number;
 				break;
 			case symbol:
+				printf("ERROR a symbol made it into add\n");
 				break;
 			default:
+				printf("ERROR a non-number has made it into add\n");
 				break;
 		}
 		active_node = active_node->children[1];
