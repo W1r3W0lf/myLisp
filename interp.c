@@ -8,7 +8,6 @@
 
 
 ast_node* eval(sym_node** active_symtable, ast_node* root){
-	ast_node* return_node = NULL;
 
 	assert(root != NULL);
 
@@ -16,38 +15,22 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 		case number:
 			printf("%d\n", root->value.number);
 			return root;
-			break;
 		case string:
-			printf("String\n");
+			printf("%s\n",root->value.string);
 			return root;
-			break;
 		case symbol:
-			printf("Symbol\n");
-			ast_node* found_symbol = sym_lookup(active_symtable, root->value.string);
-
-			if (found_symbol){
-				printf("Evaluating %s\n",root->value.string);
-				//eval(active_symtable,found_symbol);
-			} else {
-				printf("ERROR definition not found\n");
-			}
-
-			return found_symbol;
-
-			break;
+			return sym_lookup(active_symtable, root->value.string);
 		case quote:
 			return root->children[0];
-			break;
 		case cons_cell:
-			printf("Cons Cell\n");
-
+			printf("");
 
 
 			// Convert symbol into function with eval
 			// Or evauluate user function over input data
-
 			ast_node* new_root = root->children[0];
 
+			// Turn the symbol into a function or function pointer
 			new_root = eval(active_symtable,root->children[0]);
 
 			// Not quite
@@ -56,29 +39,26 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 
 			ast_node* result = eval(active_symtable, new_root);
 
+			eval(active_symtable,result);
 			printf("RESULT %d\n", result->value.number);
-			
-
-			break;
+		
+			return result;
 		case function:
 			// Returns a procedure
-			printf("Evaluating function\n");
 			break;
 		case function_pointer:
 			// Returns a procedure
 			
 			// Remove this and have it just return the procedure
-			return_node = root->value.function(active_symtable, root->children[0]);
-			break;
+			return root->value.function(active_symtable, root->children[0]);
+			return root;
 		case definition:
-
-			printf("Defining %s\n", root->children[0]->value.symbol);
 
 			*active_symtable = sym_define(active_symtable, root->children[0]->value.symbol, root->children[1]);
 			// Add symbol to the symbol table
-			
-
-			break;
+	
+			// Equal to return nil
+			return ast_new_node(cons_cell);
 		case expression:
 			// I don't know if I need/want this.
 			// I'll leave it here for now, in case I decide to go down this route again.
@@ -95,7 +75,8 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 			break; //No need for a break here- it's just a place holer.
 	}
 
-	return return_node;
+	// This line of code should never run after eval is fully working
+	return root;
 }
 
 
