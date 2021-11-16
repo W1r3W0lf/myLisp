@@ -45,11 +45,6 @@
 	|	datatype {
 		ast = $1;
 	}
-	|	QUOTE datatype {
-		ast_node* node = ast_new_node(quote);
-		ast_add_child(node, $2);
-		$$ = node;
-	}
 	;
 
 	definition:
@@ -74,6 +69,11 @@
 		list {
 		$$ = $1;
 		}
+	|	QUOTE datatype {
+		ast_node* node = ast_new_node(quote);
+		ast_add_child(node, $2);
+		$$ = node;
+	}
 	|	NUMBER {
 		ast_node* node = ast_new_node(number);
 		node->value.number = $1;

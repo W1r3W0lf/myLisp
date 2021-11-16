@@ -167,6 +167,7 @@ ast_node* print(sym_node** symtable, ast_node* root){
 		case number:
 			printf("%d\n",root->value.number);
 			break;
+		case symbol:
 		case string:
 			printf("%s\n",root->value.string);
 			break;
