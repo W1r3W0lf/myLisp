@@ -26,25 +26,71 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 			if (root->child_count == 0)
 				return root;
 
-			// Eval the CAR of the cons
-			ast_node* new_root = eval(active_symtable,root->children[0]);
+			ast_node* new_root;
 
+			// If there is a symbol in place of a function, turn it into a function
+			if (root->children[0]->type == symbol)
+				new_root = eval(active_symtable,root->children[0]);
+			else
+				new_root = root->children[0];
+
+			ast_node* result;
 			// Not quite
 			// Add the rest of the list as an opperand to the function
 			if (new_root->type == function_pointer){
 
 				ast_add_child(new_root, root->children[1]);
 
-				ast_node* result = eval(active_symtable, new_root);
+				result = eval(active_symtable, new_root);
 
 				// Remove the children
 				ast_remove_child(new_root);
 
 				return result;
+			} else if (new_root->type == function) {
+
+				sym_node* tmp_table = *active_symtable;
+
+				ast_node* op_name = new_root->children[0];
+				ast_node* op_value = root->children[1];
+
+				// Match up opperand names and values
+				do{
+
+					// Make a temporary symbol table with those pairs
+					tmp_table = sym_tmp_define(tmp_table, op_name->children[0]->value.symbol, op_value->children[0]);
+
+					op_name = op_name->children[1];
+					op_value = op_value->children[1];
+
+				} while( op_name->child_count > 0 && op_value->child_count > 0  );
+
+				if (  op_name->child_count > 0 || op_value->child_count > 0 )
+					printf("ERROR Opperand miss match\n");
+				
+				// Evalute the function's AST with the temporary symbol table
+				
+				result = eval(&tmp_table, new_root->children[1]);
+
+				// Clean up the temporary symbol table
+			
+				sym_tmp_clean(active_symtable, tmp_table);
+
+				return result;
 			}
+
+
+			printf("ERROR non-runable datatype encounterd\n");
+
 			break;
 		case function:
 			// Returns a procedure
+
+			// Match up opperand names and values
+			// Make a temporary symbol table with those pairs
+			// Evalute the function's AST with the temporary symbol table
+			// Clean up the temporary symbol table
+
 			break;
 		case function_pointer:
 			// Returns a procedure
@@ -105,6 +151,7 @@ ast_node* print(sym_node** symtable, ast_node* root){
 				print(symtable, root->children[0]);
 				print(symtable, root->children[1]);
 			}
+			break;
 		case number:
 			printf("%d\n",root->value.number);
 			break;
@@ -144,7 +191,10 @@ ast_node* add(sym_node** symtable, ast_node* root){
 				break;
 			case symbol:
 				active_node = eval(symtable, active_node);
-				sum += active_node->value.number;
+				if (active_node->type == number)
+					sum += active_node->value.number;
+				else
+					printf("ERROR symbol returned a non-number");
 				break;
 			default:
 				printf("ERROR a non-number has made it into add\n");

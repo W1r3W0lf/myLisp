@@ -95,7 +95,7 @@
 		}
 	|	'(' LAMBDA list list ')' {
 		// This can be done in eval
-		ast_node* node = ast_new_node(definition);
+		ast_node* node = ast_new_node(function);
 		ast_add_child(node, $3);
 		ast_add_child(node, $4);
 		$$ = node;

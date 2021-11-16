@@ -40,6 +40,40 @@ sym_node* sym_define(sym_node** table, char* symbol, ast_node* value){
 	return new_node;
 }
 
+
+/* Sym_tmp_define
+ * This function temporarily defines vareables into the namespace without updaing there values.
+ * It is used for defining opperands to functions.
+ */
+sym_node* sym_tmp_define(sym_node* table, char* symbol, struct ast_node* value){
+
+	// The symbol table must have a pointer to return the results to
+	assert(table != NULL);
+
+	sym_node *new_node = malloc(sizeof(sym_node));
+	new_node->symbol = strdup(symbol);
+	new_node->value = value;
+
+	// Add the new node to the front of the list.
+	new_node->next = table;
+
+	return new_node;
+}
+
+void sym_tmp_clean(sym_node** table, sym_node* tmp_table){
+
+	sym_node* current_node = tmp_table;
+	sym_node* next_node;
+
+	while (current_node != *table){
+		next_node = current_node->next;
+		free(current_node);
+		current_node = next_node;
+	}
+
+}
+
+
 ast_node* sym_lookup(sym_node** table, char* symbol){
 
 	// Table must not be null
