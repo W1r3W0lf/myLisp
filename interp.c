@@ -31,12 +31,18 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 
 			// Not quite
 			// Add the rest of the list as an opperand to the function
-			if (new_root->type == function_pointer)
+			if (new_root->type == function_pointer){
+
 				ast_add_child(new_root, root->children[1]);
 
-			ast_node* result = eval(active_symtable, new_root);
-		
-			return result;
+				ast_node* result = eval(active_symtable, new_root);
+
+				// Remove the children
+				ast_remove_child(new_root);
+
+				return result;
+			}
+			break;
 		case function:
 			// Returns a procedure
 			break;
@@ -125,26 +131,26 @@ ast_node* add(sym_node** symtable, ast_node* root){
 
 	assert( root->child_count > 0 );
 
+	ast_node* active_cons;
 	ast_node* active_node;
 	int sum = 0;
-	active_node = root;
-	while (active_node->child_count > 0){
+	active_cons = root;
+	while (active_cons->child_count > 0){
 
-		// I'm not sure if I should be doing this here.
-		// Should I assume that all cildren of this node have been evaulated?
-		// I think so... I'll come back to this later.
-		switch ( active_node->children[0]->type ) {
+		active_node = active_cons->children[0];
+		switch ( active_node->type ) {
 			case number:
-				sum += active_node->children[0]->value.number;
+				sum += active_node->value.number;
 				break;
 			case symbol:
-				printf("ERROR a symbol made it into add\n");
+				active_node = eval(symtable, active_node);
+				sum += active_node->value.number;
 				break;
 			default:
 				printf("ERROR a non-number has made it into add\n");
 				break;
 		}
-		active_node = active_node->children[1];
+		active_cons = active_cons->children[1];
 
 	}
 

@@ -39,6 +39,8 @@ ast_node* ast_new_node(ast_node_type type);
 
 int ast_add_child(ast_node *parent, ast_node *child);
 
+int ast_remove_child(ast_node *parent);
+
 int ast_free(ast_node *root);
 
 void ast_print(ast_node *root);

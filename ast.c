@@ -47,6 +47,16 @@ int ast_add_child(ast_node *parent, ast_node *child){
 	return 0;
 }
 
+int ast_remove_child(ast_node *parent){
+
+	int dead_child = --parent->child_count;
+
+	parent->children[dead_child]->ref_count--;
+	ast_free(parent->children[dead_child]);
+
+	return 0;
+}
+
 int ast_free(ast_node *root){
 
 	if (root == NULL)
