@@ -194,10 +194,14 @@ ast_node* add(sym_node** symtable, ast_node* root){
 	ast_node* active_cons;
 	ast_node* active_node;
 	int sum = 0;
+	int resolved_symbols = true;
 	active_cons = root;
 	while (active_cons->child_count > 0){
 
-		active_node = active_cons->children[0];
+		if (resolved_symbols)
+			active_node = active_cons->children[0];
+
+		resolved_symbols = true;
 		switch ( active_node->type ) {
 			case number:
 				sum += active_node->value.number;
@@ -208,14 +212,14 @@ ast_node* add(sym_node** symtable, ast_node* root){
 				if (active_node->type == number)
 					sum += active_node->value.number;
 				else
-					printf("ERROR symbol returned a non-number\n");
+					resolved_symbols = false;
 				break;
 			default:
 				printf("ERROR a non-number has made it into add\n");
 				break;
 		}
-		active_cons = active_cons->children[1];
-
+		if (resolved_symbols)
+			active_cons = active_cons->children[1];
 	}
 
 	return_node->value.number = sum;
