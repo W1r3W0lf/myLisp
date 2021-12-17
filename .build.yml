@@ -21,5 +21,10 @@ tasks:
       make test
   - mirror: |
       cd mylisp
+      # Start SSH agent
+      eval "$(ssh-agent -s)"
+      ssh-add ~/.ssh/id_rsa
+
+      # Push repo to github
       git remote add downstream git@github.com:W1r3W0lf/myLisp.git
       git push --all --force downstream
