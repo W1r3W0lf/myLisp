@@ -1,0 +1,22 @@
+image: archlinux
+sources:
+  - https://git.sr.ht/~wire_wolf/mylisp
+packages:
+  - make
+  - check
+  - flex
+  - bison
+  - gcc
+  - readline
+  - graphviz
+  - git
+secrets:
+  - 878be77d-92c5-4e5f-865a-70c37f9dac0c
+tasks:
+  - build: |
+      cd mylisp
+      make
+  - test: make test
+  - mirror: |
+      git remote add origin git@github.com:W1r3W0lf/myLisp.git
+      git push --all --force origin master
