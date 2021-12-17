@@ -24,8 +24,6 @@ tasks:
       # Start SSH agent
       #eval "$(ssh-agent -s)"
       #ssh-add ~/.ssh/id_rsa
-      ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa
-
-      # Push repo to github
+      export GIT_SSH_COMMAND = "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa"
       git remote add downstream git@github.com:W1r3W0lf/myLisp.git
       git push --all --force downstream
