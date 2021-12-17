@@ -27,4 +27,4 @@ tasks:
 
       # Push repo to github
       git remote add downstream git@github.com:W1r3W0lf/myLisp.git
-      git push --all --force downstream
+      yes | git push --all --force downstream
