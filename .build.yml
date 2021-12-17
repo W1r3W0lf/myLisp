@@ -22,4 +22,4 @@ tasks:
   - mirror: |
       cd mylisp
       git remote add downstream git@github.com:W1r3W0lf/myLisp.git
-      git push --all --force downstream master
+      git push --all --force downstream
