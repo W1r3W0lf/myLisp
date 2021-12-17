@@ -16,7 +16,10 @@ tasks:
   - build: |
       cd mylisp
       make
-  - test: make test
+  - test: |
+      cd mylisp
+      make test
   - mirror: |
+      cd mylisp
       git remote add origin git@github.com:W1r3W0lf/myLisp.git
       git push --all --force origin master
