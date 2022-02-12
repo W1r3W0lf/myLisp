@@ -13,22 +13,28 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 
 	switch( root->type ){
 		case number:
+			// An intiger
 			return root;
 		case string:
+			// A sequence of characters
 			return root;
 		case symbol:
+			// A string that can refer to some value
 			return sym_lookup(active_symtable, root->value.string);
 		case quote:
+			// Returns the quoted symbol instead of the symbol's value
 			return root->children[0];
 		case cons_cell:
 			printf("");
 
+			// () -> () aka the empty list is nil
+			// And self evaluates
 			if (root->child_count == 0)
 				return root;
 
 			ast_node* new_root;
 
-			// If there is a symbol in place of a function, turn it into a function
+			// Evaluate symbol
 			if (root->children[0]->type == symbol)
 				new_root = eval(active_symtable,root->children[0]);
 			else
@@ -84,7 +90,6 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 
 				return result;
 			}
-
 
 			printf("ERROR non-runable datatype encounterd\n");
 
@@ -181,45 +186,32 @@ ast_node* print(sym_node** symtable, ast_node* root){
 // Arithmetic functions
 
 ast_node* add(sym_node** symtable, ast_node* root){
-	ast_node* return_node;
-	return_node = ast_new_node(number);
+	ast_node* return_node = ast_new_node(number);
 
 	assert(root != NULL);
 
+	// The number of opperands should be determined by the function that calls add
 	if ( root->child_count == 0 )
 		fprintf(stderr, "ERROR: Add has no children\n");
 
 	assert( root->child_count > 0 );
 
-	ast_node* active_cons;
-	ast_node* active_node;
+	ast_node* active_node = root;
 	int sum = 0;
-	int resolved_symbols = true;
-	active_cons = root;
-	while (active_cons->child_count > 0){
 
-		if (resolved_symbols)
-			active_node = active_cons->children[0];
-
-		resolved_symbols = true;
-		switch ( active_node->type ) {
+	while (active_node->child_count > 0){
+		switch ( active_node->children[0]->type ){
 			case number:
-				sum += active_node->value.number;
+				sum += active_node->children[0]->value.number;
+				active_node = active_node->children[1];
 				break;
 			case cons_cell:
 			case symbol:
-				active_node = eval(symtable, active_node);
-				if (active_node->type == number)
-					sum += active_node->value.number;
-				else
-					resolved_symbols = false;
+				active_node->children[0] = eval(symtable, active_node->children[0]);
 				break;
 			default:
-				printf("ERROR a non-number has made it into add\n");
-				break;
+				printf("ERROR, an unexpected ast node has entered add\n");
 		}
-		if (resolved_symbols)
-			active_cons = active_cons->children[1];
 	}
 
 	return_node->value.number = sum;
@@ -284,7 +276,6 @@ ast_node* not(sym_node** symtable, ast_node* root){
 	return return_node;
 }
 
-
 sym_node* default_symtable(){
 	sym_node* symtable = NULL;
 
@@ -303,7 +294,6 @@ sym_node* default_symtable(){
 
 		symtable = sym_define(&symtable,new_function_name, new_function_pointer);
 	}
-
 
 	return symtable;
 }
