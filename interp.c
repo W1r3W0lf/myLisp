@@ -78,7 +78,7 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 				} while( op_name->child_count > 0 && op_value->child_count > 0  );
 
 				if (  op_name->child_count > 0 || op_value->child_count > 0 )
-					printf("ERROR Opperand miss match\n");
+					fprintf(stderr, "ERROR Opperand miss match\n");
 				
 				// Evalute the function's AST with the temporary symbol table
 				
@@ -91,7 +91,7 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 				return result;
 			}
 
-			printf("ERROR non-runable datatype encounterd\n");
+			fprintf(stderr, "ERROR non-runable datatype encounterd\n");
 
 			break;
 		case function:
@@ -177,7 +177,7 @@ ast_node* print(sym_node** symtable, ast_node* root){
 			printf("%s\n",root->value.string);
 			break;
 		default :
-			printf("Printing Error\n");
+			fprintf(stderr, "Printing Error\n");
 	}
 
 	return return_node;
@@ -185,24 +185,32 @@ ast_node* print(sym_node** symtable, ast_node* root){
 
 // Arithmetic functions
 
-ast_node* add(sym_node** symtable, ast_node* root){
+
+ast_node* arithmetic(sym_node** symtable, ast_node* root, int( a_function )(int, int) ){
 	ast_node* return_node = ast_new_node(number);
 
 	assert(root != NULL);
 
-	// The number of opperands should be determined by the function that calls add
 	if ( root->child_count == 0 )
-		fprintf(stderr, "ERROR: Add has no children\n");
+		fprintf(stderr, "ERROR: an arithmetic function has no children\n");
 
 	assert( root->child_count > 0 );
 
 	ast_node* active_node = root;
-	int sum = 0;
+	int result = 0;
+
+	int primed = false;
 
 	while (active_node->child_count > 0){
 		switch ( active_node->children[0]->type ){
 			case number:
-				sum += active_node->children[0]->value.number;
+
+				if (primed)
+					result = a_function(result, active_node->children[0]->value.number);
+				else{
+					result = active_node->children[0]->value.number;
+					primed = true;
+				}
 				active_node = active_node->children[1];
 				break;
 			case cons_cell:
@@ -210,40 +218,45 @@ ast_node* add(sym_node** symtable, ast_node* root){
 				active_node->children[0] = eval(symtable, active_node->children[0]);
 				break;
 			default:
-				printf("ERROR, an unexpected ast node has entered add\n");
+				fprintf(stderr, "ERROR, an unexpected ast node has entered an arithmetic function\n");
 		}
 	}
 
-	return_node->value.number = sum;
+	return_node->value.number = result;
 
 	return return_node;
 }
 
+int a_add(int a, int b){
+	return a + b;
+}
+
+ast_node* add(sym_node** symtable, ast_node* root){
+	return arithmetic(symtable, root, a_add);
+}
+
+int a_subtract(int a, int b){
+	return a - b;
+}
 ast_node* subtract(sym_node** symtable, ast_node* root){
-	ast_node* return_node;
-	return_node = ast_new_node(number);
-
-	assert(root != NULL);
-
-	return return_node;
+	return arithmetic(symtable, root, a_subtract);
 }
 
+int a_multiply(int a, int b){
+	return a * b;
+}
 ast_node* multiply(sym_node** symtable, ast_node* root){
-	ast_node* return_node;
-	return_node = ast_new_node(number);
-
-	assert(root != NULL);
-
-	return return_node;
+	return arithmetic(symtable, root, a_multiply);
 }
 
+int a_devide(int a, int b){
+	if (b == 0)
+		fprintf(stderr, "DEVIDE BY ZERO ERROR\n");
+	assert(b != 0);
+	return a / b;
+}
 ast_node* devide(sym_node** symtable, ast_node* root){
-	ast_node* return_node;
-	return_node = ast_new_node(number);
-
-	assert(root != NULL);
-
-	return return_node;
+	return arithmetic(symtable, root, a_devide);
 }
 
 
