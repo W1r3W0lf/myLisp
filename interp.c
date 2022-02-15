@@ -132,6 +132,10 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 
 			ast_node* condition = eval(active_symtable, root->children[0]);
 
+			// This is a place holder
+			// I don't currently have any truthy or falsey values
+			// So for now I'm using 0 as my falsey value
+			// And any other intiger as my truthy values
 			if (condition->value.number)
 				return eval(active_symtable, root->children[1]);
 			else
@@ -207,21 +211,35 @@ ast_node* evaluate_opperands(sym_node** symtable, ast_node* root){
 ast_node* print(sym_node** symtable, ast_node* root){
 	ast_node* return_node;
 
+	ast_node* active_cons;
+
 	assert(root != NULL);
 
+	// TODO How should I add the final \n ?
+	// I could have a handler function that calls the main print function and prints a \n
 	switch ( root->type ) {
 		case cons_cell:
-			if (root->child_count == 2){
-				print(symtable, root->children[0]);
-				print(symtable, root->children[1]);
+
+			active_cons = root;
+
+			printf("(");
+
+			// TODO What if a cons cell only has one child?
+			while (active_cons->child_count > 1) {
+				print(symtable, active_cons->children[0]);
+				printf(" ");
+				active_cons = active_cons->children[1];
 			}
+
+			printf(")");
+
 			break;
 		case number:
-			printf("%d\n",root->value.number);
+			printf("%d",root->value.number);
 			break;
 		case symbol:
 		case string:
-			printf("%s\n",root->value.string);
+			printf("%s",root->value.string);
 			break;
 		default :
 			fprintf(stderr, "Printing Error\n");
