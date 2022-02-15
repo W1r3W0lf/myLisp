@@ -33,6 +33,9 @@ test: $(test_objects)
 %.o: ./tests/%.c
 	$(CC) $(CFLAGS) -c -o $@ $^
 
+.PHONY: tags
+tags:
+	ctags --recurse=yes --exclude=.git --exclude=.ccls-cache
 
 .PHONY: clean
 clean:

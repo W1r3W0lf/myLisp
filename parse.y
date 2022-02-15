@@ -113,6 +113,8 @@
 	list:
 		'(' list_content ')' {
 			$$ = $2;
+			// TODO Make lists nil terminated
+			// TODO Add doted cons cell notation (a . b)
 		}
 		| '('')' {
 			$$ = ast_new_node(cons_cell);

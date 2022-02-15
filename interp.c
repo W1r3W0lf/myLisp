@@ -79,13 +79,13 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 
 				if (  op_name->child_count > 0 || op_value->child_count > 0 )
 					fprintf(stderr, "ERROR Opperand miss match\n");
-				
+
 				// Evalute the function's AST with the temporary symbol table
-				
+
 				result = eval(&tmp_table, new_root->children[1]);
 
 				// Clean up the temporary symbol table
-			
+
 				sym_tmp_clean(active_symtable, tmp_table);
 
 				return result;
@@ -105,14 +105,14 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 			break;
 		case function_pointer:
 			// Returns a procedure
-			
+
 			// Remove this and have it just return the procedure
 			return root->value.function(active_symtable, root->children[0]);
 		case definition:
 
 			*active_symtable = sym_define(active_symtable, root->children[0]->value.symbol, root->children[1]);
 			// Add symbol to the symbol table
-	
+
 			// Equal to return nil
 			return ast_new_node(cons_cell);
 		case expression:
@@ -185,7 +185,7 @@ ast_node* print(sym_node** symtable, ast_node* root){
 
 // Arithmetic functions
 
-
+// TODO rename this to it's actual name
 ast_node* arithmetic(sym_node** symtable, ast_node* root, int( a_function )(int, int) ){
 	ast_node* return_node = ast_new_node(number);
 
@@ -289,13 +289,68 @@ ast_node* not(sym_node** symtable, ast_node* root){
 	return return_node;
 }
 
+// Data structure opperators
+
+ast_node* car(sym_node** symtable, ast_node* root){
+
+	// Evaluate the rest of the S-expression
+
+	// Check to make sure that it's unwrapping a cons cell
+	// Checl to see if the cons cell has at least 1 item in it
+
+	// Retuen the first item in the cons cell
+
+	if (root->type != cons_cell)
+		fprintf(stderr, "ERROR, you can only use car on a cons cell\n");
+	assert(root->type == cons_cell);
+	assert(root->child_count > 0);
+
+	// Double indexing into children is because opperands are lists
+	// The first is to index into opperands the second is going into the given cons cell
+	return root->children[0]->children[0];
+}
+
+ast_node* cdr(sym_node** symtable, ast_node* root){
+	if (root->type != cons_cell)
+		fprintf(stderr, "ERROR, you can only use cdr on a cons cell\n");
+	assert(root->type == cons_cell);
+	assert(root->child_count > 1);
+	return root->children[0]->children[1];
+}
+
+ast_node* cons(sym_node** symtable, ast_node* root){
+
+	ast_node* return_node;
+	return_node = ast_new_node(cons_cell);
+
+	assert(root != NULL);
+
+	// Evaluate the rest of the S-expression
+
+	// Check to see if there are exactly two opperands
+
+	// Place the two opperands into the cons cell
+
+	// Return the cons cell
+	return return_node;
+}
+
+ast_node* map(sym_node** symtable, ast_node* root){
+	ast_node* return_node;
+	return_node = ast_new_node(number);
+
+	assert(root != NULL);
+
+	return return_node;
+}
+
 sym_node* default_symtable(){
 	sym_node* symtable = NULL;
 
-	static int defualt_function_count = 10;
+	static int defualt_function_count = 14;
 
-	char default_names[][10] = { "eval", "apply", "print", "+", "-", "*", "/", "and", "or", "not" };
-	ast_node* (*default_functions[])(sym_node**, ast_node*) = {eval, apply, print, add, subtract, multiply, devide, and, or, not};
+	char default_names[][10] = { "eval", "apply", "print", "+", "-", "*", "/", "and", "or", "not", "car", "cdr", "cons", "map" };
+	ast_node* (*default_functions[])(sym_node**, ast_node*) = {eval, apply, print, add, subtract, multiply, devide, and, or, not, car, cdr, cons, map};
 
 	ast_node *new_function_pointer;
 	char* new_function_name;
