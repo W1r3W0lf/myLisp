@@ -6,7 +6,13 @@
 #include "ast.h"
 #include "symtable.h"
 
-
+// I hate how I keep on having to add both a sym_node** and a ast_node* to every function
+// I'm going to make a struct that will combine them both.
+//
+// Before I do this, I should relise namespaces.
+// That's the whole point why I have these functions take in a symbol table
+// The dumb way would be to just refrence a global symbol table
+// But that would prevent concurrent programming, and remove namespaces from the table.
 ast_node* eval(sym_node** active_symtable, ast_node* root){
 
 	assert(root != NULL);
@@ -141,7 +147,6 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 	return root;
 }
 
-
 ast_node* apply(sym_node** symtable, ast_node* root){
 
 	assert(root != NULL);
@@ -152,6 +157,48 @@ ast_node* apply(sym_node** symtable, ast_node* root){
 	}
 
 	return return_node;
+}
+
+
+// Supporting functions
+
+ast_node* evaluate_opperands(sym_node** symtable, ast_node* root){
+
+	// Make a new list for the results to be placed into
+	ast_node* active_node = root;
+	// Holds the list that will be returned
+	ast_node* final_result = ast_new_node(cons_cell);
+	// Points to where the next result should be placed.
+	ast_node* result_node = final_result;
+	// A place holder so the next node can be added to the list.
+	ast_node* last_node = final_result;
+
+	// Itterate over the elements into the input list
+	while( active_node->child_count > 0 ){
+		// Break if it's an impropper list
+		assert(active_node->type == cons_cell);
+
+		if (active_node != root ){
+			// Shimmy in another node to add the result into
+			last_node = result_node;
+			result_node = ast_new_node(cons_cell);
+			ast_add_child(last_node, result_node);
+		}
+
+		// Evaluate elemtns and place results into results list
+		ast_add_child(result_node, eval(symtable, active_node->children[0]));
+
+		// Move on to the next cons cell
+		active_node = active_node->children[1];
+	}
+
+	// Place a nil at the end of the list, to make it propper
+	ast_add_child(result_node, ast_new_node(cons_cell));
+
+	// Free the input list
+
+	// Return the results list
+	return final_result;
 }
 
 
@@ -294,42 +341,66 @@ ast_node* not(sym_node** symtable, ast_node* root){
 ast_node* car(sym_node** symtable, ast_node* root){
 
 	// Evaluate the rest of the S-expression
+	
+	// Not quite, I don't want to evaluate the next value across the rest of the opperands.
+	//ast_node* result = eval(symtable, root);
+
+	ast_node* opperands = evaluate_opperands(symtable, root);
+
+	// (func 1 a (+ 1 1) '(a b c)) where a = 7
+	// should get
+	// (func 1 7 2 (a b c))
+	//
+	// This should apply to every function.
+	// So my solution here will be applied to all other functions.
+	// Don't rely on the fact that car only expects one opperand.
+	
+	// (map eval '(x y z))
+	// should do it, hummm
+	// But if I use map here, I can't use car in map.
+	//
+	// I'll try writting map first.
+
 
 	// Check to make sure that it's unwrapping a cons cell
-	// Checl to see if the cons cell has at least 1 item in it
-
-	// Retuen the first item in the cons cell
-
 	if (root->type != cons_cell)
 		fprintf(stderr, "ERROR, you can only use car on a cons cell\n");
-	assert(root->type == cons_cell);
-	assert(root->child_count > 0);
+	assert(opperands->children[0]->type == cons_cell);
+	// Check to see if the cons cell has at least 1 item in it
+	assert(opperands->children[0]->child_count > 0);
 
-	// Double indexing into children is because opperands are lists
-	// The first is to index into opperands the second is going into the given cons cell
-	return root->children[0]->children[0];
+	// Retuen the first item in the cons cell
+	return opperands->children[0]->children[0];
 }
 
 ast_node* cdr(sym_node** symtable, ast_node* root){
+	ast_node* opperands = evaluate_opperands(symtable, root);
 	if (root->type != cons_cell)
 		fprintf(stderr, "ERROR, you can only use cdr on a cons cell\n");
 	assert(root->type == cons_cell);
 	assert(root->child_count > 1);
-	return root->children[0]->children[1];
+	assert(opperands->children[0]->type == cons_cell);
+	// Check to see if the cons cell has at least 1 item in it
+	assert(opperands->children[0]->child_count > 0);
+
+	// Retuen the first item in the cons cell
+	return opperands->children[0]->children[1];
 }
 
 ast_node* cons(sym_node** symtable, ast_node* root){
 
-	ast_node* return_node;
-	return_node = ast_new_node(cons_cell);
+	ast_node* return_node = ast_new_node(cons_cell);
 
 	assert(root != NULL);
 
 	// Evaluate the rest of the S-expression
+	ast_node* opperands = evaluate_opperands(symtable, root);
 
-	// Check to see if there are exactly two opperands
+	// TODO Check to see if there are exactly two opperands
 
 	// Place the two opperands into the cons cell
+	ast_add_child(return_node, opperands->children[0]);
+	ast_add_child(return_node, opperands->children[1]);
 
 	// Return the cons cell
 	return return_node;
@@ -340,6 +411,14 @@ ast_node* map(sym_node** symtable, ast_node* root){
 	return_node = ast_new_node(number);
 
 	assert(root != NULL);
+
+	// Both of these need to be evaluated.
+	ast_node* function = root->children[0];
+	ast_node* opperand = root->children[1];
+
+	while (opperand->child_count > 0){
+
+	}
 
 	return return_node;
 }
