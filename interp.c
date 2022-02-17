@@ -205,12 +205,20 @@ ast_node* evaluate_opperands(sym_node** symtable, ast_node* root){
 	return final_result;
 }
 
+int list_size(ast_node* root){
+	int total = 0;
+	ast_node* active_node = root;
+	while (active_node->child_count > 1){
+		total++;
+		active_node = active_node->children[1];
+	}
+	return total;
+}
 
 // Input / Output
 
-ast_node* print(sym_node** symtable, ast_node* root){
-	ast_node* return_node;
 
+ast_node* print_runner(sym_node** symtable, ast_node* root){
 	ast_node* active_cons;
 
 	assert(root != NULL);
@@ -226,8 +234,9 @@ ast_node* print(sym_node** symtable, ast_node* root){
 
 			// TODO What if a cons cell only has one child?
 			while (active_cons->child_count > 1) {
-				print(symtable, active_cons->children[0]);
-				printf(" ");
+				print_runner(symtable, active_cons->children[0]);
+				if (active_cons->children[1]->child_count > 0)
+					printf(" ");
 				active_cons = active_cons->children[1];
 			}
 
@@ -241,11 +250,32 @@ ast_node* print(sym_node** symtable, ast_node* root){
 		case string:
 			printf("%s",root->value.string);
 			break;
+		case quote:
+			printf("'");
+			print_runner(symtable, root->children[0]);
+			break;
 		default :
 			fprintf(stderr, "Printing Error\n");
 	}
 
-	return return_node;
+	return root;
+}
+
+ast_node* print(sym_node** symtable, ast_node* root){
+	ast_node* active_cons = root;
+
+	while (active_cons->child_count > 1){
+		print_runner(symtable, active_cons->children[0]);
+		printf("\n");
+		active_cons = active_cons->children[1];
+	}
+	return root;
+}
+
+ast_node* repl_print(sym_node** symtable, ast_node* root){
+	print_runner(symtable, root);
+	printf("\n");
+	return root;
 }
 
 // Arithmetic functions
@@ -414,7 +444,11 @@ ast_node* cons(sym_node** symtable, ast_node* root){
 	// Evaluate the rest of the S-expression
 	ast_node* opperands = evaluate_opperands(symtable, root);
 
-	// TODO Check to see if there are exactly two opperands
+	// Check to see if there are exactly two opperands
+	int opperand_size = list_size(opperands);
+	if (opperand_size != 2)
+		fprintf(stderr, "ERROR cons can only take 2 arguments\n");
+	assert(opperand_size == 2);
 
 	// Place the two opperands into the cons cell
 	ast_add_child(return_node, opperands->children[0]);
@@ -430,9 +464,18 @@ ast_node* map(sym_node** symtable, ast_node* root){
 
 	assert(root != NULL);
 
-	// Both of these need to be evaluated.
-	ast_node* function = root->children[0];
-	ast_node* opperand = root->children[1];
+	ast_node* opperands = evaluate_opperands(symtable, root);
+
+	// TODO Find a better way to handel errors.
+	// Hand crafted errors for each function are bad.
+	// And every error being fatial is worse. (Except in Erlang)
+	int opperand_size = list_size(opperands);
+	if (opperand_size != 2)
+		fprintf(stderr, "ERROR map can only take 2 arguments\n");
+	assert(opperand_size == 2);
+
+	ast_node* function = opperands->children[0];
+	ast_node* opperand = opperands->children[1];
 
 	while (opperand->child_count > 0){
 
@@ -444,8 +487,8 @@ ast_node* map(sym_node** symtable, ast_node* root){
 sym_node* default_symtable(){
 	sym_node* symtable = NULL;
 
+	// TODO Find a way to combine these three diffrent variables into something cohesive.
 	static int defualt_function_count = 14;
-
 	char default_names[][10] = { "eval", "apply", "print", "+", "-", "*", "/", "and", "or", "not", "car", "cdr", "cons", "map" };
 	ast_node* (*default_functions[])(sym_node**, ast_node*) = {eval, apply, print, add, subtract, multiply, devide, and, or, not, car, cdr, cons, map};
 

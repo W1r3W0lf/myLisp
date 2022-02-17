@@ -81,7 +81,7 @@ int main(int argc, char** argv){
 		yyparse();
 
 		result = eval(&global_symboltable, ast);
-		print(&global_symboltable, result);
+		repl_print(&global_symboltable, result);
 
 		yy_delete_buffer(buffer);
 
