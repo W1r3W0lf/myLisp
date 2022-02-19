@@ -1,6 +1,7 @@
 #include "interp.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 
 #include "ast.h"
@@ -31,7 +32,6 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 			// Returns the quoted symbol instead of the symbol's value
 			return root->children[0];
 		case cons_cell:
-			printf("");
 
 			// () -> () aka the empty list is nil
 			// And self evaluates
@@ -61,7 +61,7 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 				result = eval(active_symtable, new_root);
 				ast_free(new_root);
 
-				// Remove the children
+				// TODO fix Remove the children
 				//ast_remove_child(new_root);
 
 				return result;
@@ -128,7 +128,9 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 			break;
 		case conditinal:
 
-			printf("");
+			// Clang won't allow a definition at the beginning of a case
+			// So I'm adding an assert to make it the second statement.
+			assert(root->child_count > 1);
 
 			ast_node* condition = eval(active_symtable, root->children[0]);
 
@@ -155,7 +157,7 @@ ast_node* apply(sym_node** symtable, ast_node* root){
 
 	assert(root != NULL);
 
-	ast_node* return_node;
+	ast_node* return_node = ast_new_node(cons_cell);
 
 	if (root->type == function_pointer){
 	}
@@ -166,6 +168,9 @@ ast_node* apply(sym_node** symtable, ast_node* root){
 
 // Supporting functions
 
+// I've been noticing patterns like this in creating many functions
+// Eventually I would like to re-write most of these functions in a subset of mylisp
+// I don't know what that would look like right now, but I'll leave notes about my thougths
 ast_node* evaluate_opperands(sym_node** symtable, ast_node* root){
 
 	// Make a new list for the results to be placed into
@@ -178,7 +183,7 @@ ast_node* evaluate_opperands(sym_node** symtable, ast_node* root){
 	ast_node* last_node = final_result;
 
 	// Itterate over the elements into the input list
-	while( active_node->child_count > 0 ){
+	while( active_node->child_count > 1 ){
 		// Break if it's an impropper list
 		assert(active_node->type == cons_cell);
 
@@ -199,7 +204,7 @@ ast_node* evaluate_opperands(sym_node** symtable, ast_node* root){
 	// Place a nil at the end of the list, to make it propper
 	ast_add_child(result_node, ast_new_node(cons_cell));
 
-	// Free the input list
+	// TODO Free the input list
 
 	// Return the results list
 	return final_result;
@@ -280,7 +285,9 @@ ast_node* repl_print(sym_node** symtable, ast_node* root){
 
 // Arithmetic functions
 
-// TODO rename this to it's actual name
+// Real name reduce
+//
+// TODO re-write this function to be used in the language itself
 ast_node* arithmetic(sym_node** symtable, ast_node* root, int( a_function )(int, int) ){
 	ast_node* return_node = ast_new_node(number);
 
@@ -458,9 +465,16 @@ ast_node* cons(sym_node** symtable, ast_node* root){
 	return return_node;
 }
 
+// This rings of the evaluate_opperands function
+// It's not suprising, my first idea for that function was to use map
+//
+// TODO Map is currently acting like reduce
 ast_node* map(sym_node** symtable, ast_node* root){
-	ast_node* return_node;
-	return_node = ast_new_node(number);
+	ast_node* result_list = ast_new_node(cons_cell);
+	ast_node* last_result = result_list;
+	ast_node* next_result;
+	ast_node* result;
+	ast_node* temp_ast;
 
 	assert(root != NULL);
 
@@ -477,20 +491,83 @@ ast_node* map(sym_node** symtable, ast_node* root){
 	ast_node* function = opperands->children[0];
 	ast_node* opperand = opperands->children[1];
 
-	while (opperand->child_count > 0){
+	while (opperand->child_count > 1){
 
+		// Combine the function and the argument to be run
+		temp_ast = ast_new_node(cons_cell);
+		ast_add_child(temp_ast, function);
+
+		ast_add_child(temp_ast, opperand->children[0]->children[0]);
+
+
+		result = eval(symtable, temp_ast);
+
+		// Add result to result list
+		ast_add_child(last_result, result);
+		next_result = ast_new_node(cons_cell);
+		ast_add_child(last_result, next_result);
+		last_result = next_result;
+
+		opperand = opperand->children[1];
 	}
 
-	return return_node;
+	return result_list;
 }
+
+ast_node* filter(sym_node** symtable, ast_node* root){
+	return NULL;
+}
+/*
+ast_node* reduce(sym_node** symtable, ast_node* root){
+	ast_node* return_node = ast_new_node(number);
+
+	assert(root != NULL);
+
+	if ( root->child_count == 0 )
+		fprintf(stderr, "ERROR: an arithmetic function has no children\n");
+
+	assert( root->child_count > 0 );
+
+	ast_node* active_node = root;
+	int result = 0;
+
+	int primed = false;
+
+	while (active_node->child_count > 0){
+		switch ( active_node->children[0]->type ){
+			case number:
+
+				if (primed)
+					result = a_function(result, active_node->children[0]->value.number);
+				else{
+					result = active_node->children[0]->value.number;
+					primed = true;
+				}
+				active_node = active_node->children[1];
+				break;
+			case cons_cell:
+			case symbol:
+				active_node->children[0] = eval(symtable, active_node->children[0]);
+				break;
+			default:
+				fprintf(stderr, "ERROR, an unexpected ast node has entered an arithmetic function\n");
+		}
+	}
+*/
+
+ast_node* lisp_exit(sym_node** symtable, ast_node* root){
+	exit(0);
+	return NULL;
+}
+
 
 sym_node* default_symtable(){
 	sym_node* symtable = NULL;
 
 	// TODO Find a way to combine these three diffrent variables into something cohesive.
-	static int defualt_function_count = 14;
-	char default_names[][10] = { "eval", "apply", "print", "+", "-", "*", "/", "and", "or", "not", "car", "cdr", "cons", "map" };
-	ast_node* (*default_functions[])(sym_node**, ast_node*) = {eval, apply, print, add, subtract, multiply, devide, and, or, not, car, cdr, cons, map};
+	static int defualt_function_count = 15;
+	char default_names[][10] = { "eval", "apply", "print", "+", "-", "*", "/", "and", "or", "not", "car", "cdr", "cons", "map", "exit" };
+	ast_node* (*default_functions[])(sym_node**, ast_node*) = {eval, apply, print, add, subtract, multiply, devide, and, or, not, car, cdr, cons, map, lisp_exit};
 
 	ast_node *new_function_pointer;
 	char* new_function_name;
