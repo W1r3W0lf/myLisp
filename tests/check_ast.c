@@ -69,6 +69,36 @@ START_TEST(test_ast_adding_children) {
 
 } END_TEST
 
+START_TEST(test_ast_removing_children) {
+	ast_node* node = NULL;
+	ast_node* child = NULL;
+
+	// Create node
+	node = ast_new_node(quote);
+
+
+	char given_string[] = "Hello";
+	// Create Child
+	child = ast_new_node(string);
+	child->value.string = strdup(given_string);
+
+
+	// Add child to parent
+	ast_add_child(node, child);
+
+	// Remove child from parent
+	ast_remove_child(node);
+
+	// Check the status of node
+	ck_assert_ptr_nonnull(node);
+	ck_assert_int_eq(node->ref_count, 0);
+	ck_assert_int_eq(node->type, quote);
+
+
+	ast_free(node);
+
+} END_TEST
+
 START_TEST(test_ast_freeing) {
 	ast_node* node = NULL;
 
@@ -150,6 +180,7 @@ Suite *ast_suite(void){
 	tcase_add_test(tc_core, test_ast_create_int);
 	tcase_add_test(tc_core, test_ast_create_string);
 	tcase_add_test(tc_core, test_ast_adding_children);
+	tcase_add_test(tc_core, test_ast_removing_children);
 	tcase_add_test(tc_core, test_ast_freeing);
 	tcase_add_test(tc_core, test_ast_create_definition);
 	suite_add_tcase(s, tc_core);

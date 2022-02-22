@@ -14,106 +14,90 @@
 // That's the whole point why I have these functions take in a symbol table
 // The dumb way would be to just refrence a global symbol table
 // But that would prevent concurrent programming, and remove namespaces from the table.
+ast_node* evaluate_opperands(sym_node** symtable, ast_node* root);
+int list_size(ast_node* root);
+
+ast_node* eval_function(sym_node** active_symtable, ast_node* root){
+	// Returns a procedure
+	ast_node* function_ast = root->children[0]->children[1];
+	ast_node* opperands = root->children[1];
+	ast_node* arguments = root->children[0]->children[0];
+
+	// Ensure that arguments and opperands match
+
+	if (list_size(arguments) != list_size(opperands)){
+		fprintf(stderr, "ERROR opperator miss match\n");
+		return root;
+	}
+
+	sym_node* tmp_table = *active_symtable;
+
+	ast_node* argument = arguments;
+	ast_node* opperand = opperands;
+
+	// Match up opperand names and values
+	do{
+
+		// Make a temporary symbol table with those pairs
+		tmp_table = sym_tmp_define(tmp_table, argument->children[0]->value.symbol, opperand->children[0]);
+
+		argument = argument->children[1];
+		opperand = opperand->children[1];
+
+	} while( argument->child_count > 0 && opperand->child_count > 0  );
+
+	if (  argument->child_count > 0 || opperand->child_count > 0 )
+		fprintf(stderr, "ERROR !! !! Operator miss match\n");
+
+	ast_node* result;
+	// Evalute the function's AST with the temporary symbol table
+	result = eval(&tmp_table, function_ast);
+
+	// Clean up the temporary symbol table
+	sym_tmp_clean(active_symtable, tmp_table);
+
+	return result;
+}
+
+ast_node* eval_function_pointer(sym_node** active_symtable, ast_node* root){
+	ast_node* function_root = root->children[0];
+	return function_root->value.function(active_symtable, root->children[1]);
+}
+
 ast_node* eval(sym_node** active_symtable, ast_node* root){
 
 	assert(root != NULL);
 
+	//repl_print(active_symtable, root);
+
 	switch( root->type ){
-		case number:
-			// An intiger
-			return root;
-		case string:
-			// A sequence of characters
-			return root;
 		case symbol:
 			// A string that can refer to some value
 			return sym_lookup(active_symtable, root->value.string);
 		case quote:
 			// Returns the quoted symbol instead of the symbol's value
 			return root->children[0];
-		case cons_cell:
 
+		case cons_cell:
 			// () -> () aka the empty list is nil
 			// And self evaluates
 			if (root->child_count == 0)
 				return root;
 
-			ast_node* new_root;
+			// If opperator is a symbol or function, evaluate it.
+			ast_node* evaluated_list = evaluate_opperands(active_symtable, root);
 
-			// Evaluate symbol
-			if (root->children[0]->type == symbol)
-				new_root = eval(active_symtable,root->children[0]);
-			else
-				new_root = root->children[0];
-
-			ast_node* result;
-			// Not quite
-			// Add the rest of the list as an opperand to the function
-			if (new_root->type == function_pointer){
-
-				ast_node* (*func)(sym_node**, ast_node*) = new_root->value.function;
-
-				new_root = ast_new_node(function_pointer);
-				new_root->value.function = func;
-
-				ast_add_child(new_root, root->children[1]);
-
-				result = eval(active_symtable, new_root);
-				ast_free(new_root);
-
-				// TODO fix Remove the children
-				//ast_remove_child(new_root);
-
-				return result;
-			} else if (new_root->type == function) {
-
-				sym_node* tmp_table = *active_symtable;
-
-				ast_node* op_name = new_root->children[0];
-				ast_node* op_value = root->children[1];
-
-				// Match up opperand names and values
-				do{
-
-					// Make a temporary symbol table with those pairs
-					tmp_table = sym_tmp_define(tmp_table, op_name->children[0]->value.symbol, op_value->children[0]);
-
-					op_name = op_name->children[1];
-					op_value = op_value->children[1];
-
-				} while( op_name->child_count > 0 && op_value->child_count > 0  );
-
-				if (  op_name->child_count > 0 || op_value->child_count > 0 )
-					fprintf(stderr, "ERROR Opperand miss match\n");
-
-				// Evalute the function's AST with the temporary symbol table
-
-				result = eval(&tmp_table, new_root->children[1]);
-
-				// Clean up the temporary symbol table
-
-				sym_tmp_clean(active_symtable, tmp_table);
-
-				return result;
+			// TODO An If-Else will probabily work just fine here
+			switch (evaluated_list->children[0]->type){
+				case function:
+					return eval_function(active_symtable, evaluated_list);
+				case function_pointer:
+					return eval_function_pointer(active_symtable, evaluated_list);
+				default:
+					fprintf(stderr, "ERROR, can't evaluate unsupported type.");
 			}
 
-			fprintf(stderr, "ERROR non-runable datatype encounterd\n");
-
 			break;
-		case function:
-			// Returns a procedure
-
-			// Match up opperand names and values
-			// Make a temporary symbol table with those pairs
-			// Evalute the function's AST with the temporary symbol table
-			// Clean up the temporary symbol table
-
-			break;
-		case function_pointer:
-			// Returns a procedure
-
-			// Remove this and have it just return the procedure
-			return root->value.function(active_symtable, root->children[0]);
 		case definition:
 
 			*active_symtable = sym_define(active_symtable, root->children[0]->value.symbol, root->children[1]);
@@ -127,7 +111,6 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 
 			break;
 		case conditinal:
-
 			// Clang won't allow a definition at the beginning of a case
 			// So I'm adding an assert to make it the second statement.
 			assert(root->child_count > 1);
@@ -145,11 +128,10 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 
 			break;
 		default:
-			fprintf(stderr, "ERROR UNKNOWN AST_NODE type\n");
-			break; //No need for a break here- it's just a place holer.
+			// Default behavure is self evaluateion
+			break;
 	}
 
-	// This line of code should never run after eval is fully working
 	return root;
 }
 
@@ -232,11 +214,9 @@ ast_node* print_runner(sym_node** symtable, ast_node* root){
 	// I could have a handler function that calls the main print function and prints a \n
 	switch ( root->type ) {
 		case cons_cell:
-
 			active_cons = root;
 
 			printf("(");
-
 			// TODO What if a cons cell only has one child?
 			while (active_cons->child_count > 1) {
 				print_runner(symtable, active_cons->children[0]);
@@ -244,7 +224,6 @@ ast_node* print_runner(sym_node** symtable, ast_node* root){
 					printf(" ");
 				active_cons = active_cons->children[1];
 			}
-
 			printf(")");
 
 			break;
@@ -259,6 +238,13 @@ ast_node* print_runner(sym_node** symtable, ast_node* root){
 			printf("'");
 			print_runner(symtable, root->children[0]);
 			break;
+		case function:
+			assert( 1==1 );
+			int size = list_size(root->children[0]);
+			printf("f%d#", size);
+			break;
+		case function_pointer:
+			printf("fp#");
 		default :
 			fprintf(stderr, "Printing Error\n");
 	}

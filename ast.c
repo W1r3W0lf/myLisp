@@ -14,7 +14,7 @@ const int children_num[] = {
 	1, // quote   '(a b c) -> (a b c)
 	2, // cons_cell (a . b) -> (a . b)
 	3, // definition (define (a b c) (+ b c) ) -> a (b c) (+ b c)
-	2, // expression (+ 1 2) -> + (1 2)
+	2, // expression (+ 1 2) -> + (1 2) DEPRICATED
 	3, // conditinal (if x y z) -> x y z
 };
 
