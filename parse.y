@@ -55,6 +55,7 @@
 		// Create the symbol table
 		ast_node* symbol_node = ast_new_node(symbol);
 		symbol_node->value.symbol = strdup($3);
+		free($3);
 
 		// Add the children to the parent node
 		ast_add_child(node, symbol_node);

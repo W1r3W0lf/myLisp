@@ -92,9 +92,11 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 				case function_pointer:
 					return eval_function_pointer(active_symtable, evaluated_list);
 				default:
-					fprintf(stderr, "ERROR, can't evaluate unsupported type.");
+					fprintf(stderr, "ERROR, can't evaluate unsupported type.\n");
 					return error("unknown_symbol_ERROR");
 			}
+
+			ast_free(evaluated_list);
 
 			break;
 		case definition:
@@ -181,6 +183,7 @@ ast_node* evaluate_opperands(sym_node** symtable, ast_node* root){
 	ast_add_child(result_node, ast_new_node(cons_cell));
 
 	// TODO Free the input list
+	//ast_free(root);
 
 	// Return the results list
 	return final_result;
@@ -204,8 +207,6 @@ ast_node* print_runner(sym_node** symtable, ast_node* root){
 
 	assert(root != NULL);
 
-	// TODO How should I add the final \n ?
-	// I could have a handler function that calls the main print function and prints a \n
 	switch ( root->type ) {
 		case cons_cell:
 			active_cons = root;
