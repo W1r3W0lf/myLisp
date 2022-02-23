@@ -72,6 +72,9 @@ int ast_free(ast_node *root){
 	if (root->child_count > 0)
 		free(root->children);
 
+	if (root->type == symbol || root->type == string)
+		free(root->value.symbol);
+
 	// Free this nodes memory
 	free(root);
 

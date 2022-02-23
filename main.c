@@ -81,6 +81,9 @@ int main(int argc, char** argv){
 		result = eval(&global_symboltable, ast);
 		repl_print(&global_symboltable, result);
 
+		ast_free(result);
+		ast_free(ast);
+
 		yy_delete_buffer(buffer);
 
 		free(input);
