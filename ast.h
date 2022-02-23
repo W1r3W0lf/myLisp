@@ -14,7 +14,6 @@ typedef enum ast_node_type {
 	quote,
 	cons_cell,
 	definition,
-	expression,
 	conditinal
 } ast_node_type;
 

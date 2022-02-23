@@ -1,15 +1,13 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <argp.h>
-#include <stdbool.h>
-
-#include <readline/readline.h>
-#include <readline/history.h>
-
+#include "ast.h"
+#include "interp.h"
 #include "parse.h"
 #include "symtable.h"
-#include "interp.h"
-#include "ast.h"
+#include <argp.h>
+#include <readline/history.h>
+#include <readline/readline.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 sym_node* global_symboltable;
 ast_node* ast;
@@ -23,7 +21,7 @@ extern void yy_delete_buffer(YY_BUFFER_STATE buffer);
 const char *argp_program_version = "myLisp 0.5.0";
 const char *argp_program_bug_address = "https://github.com/W1r3W0lf/myLisp/issues";
 static char doc[] = "Wire_Wolf's first stab at writting a lisp.";
-static char args_doc[] = "[FILENAME]...";
+static char args_doc[] = "[FILE]...";
 static struct argp_option options[] = {
 	{ "test", 't', 0, 0, "A test value to see how this works." },
 	{ 0 },
@@ -44,7 +42,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state){
 	return 0;
 };
 
-static struct argp argp = { options, parse_opt, args_doc, doc, 0,0,0 };
+static struct argp argp = {options, parse_opt, args_doc, doc, 0, 0, 0};
 
 
 int main(int argc, char** argv){
@@ -58,7 +56,7 @@ int main(int argc, char** argv){
 	arguments.mode = TEST;
 	arguments.isCaseInsensitive = false;
 
-	argp_parse(&argp, argc, argv, 0,0, &arguments);
+	argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
 	global_symboltable = NULL;
 

@@ -1,9 +1,8 @@
+#include "ast.h"
 #include "symtable.h"
-
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
-#include "ast.h"
 
 
 sym_node* sym_define(sym_node** table, char* symbol, ast_node* value){

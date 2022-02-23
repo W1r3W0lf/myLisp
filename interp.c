@@ -1,21 +1,20 @@
+#include "ast.h"
 #include "interp.h"
-
+#include "symtable.h"
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
+#include <string.h>
 
-#include "ast.h"
-#include "symtable.h"
 
-// I hate how I keep on having to add both a sym_node** and a ast_node* to every function
-// I'm going to make a struct that will combine them both.
-//
-// Before I do this, I should relise namespaces.
-// That's the whole point why I have these functions take in a symbol table
-// The dumb way would be to just refrence a global symbol table
-// But that would prevent concurrent programming, and remove namespaces from the table.
 ast_node* evaluate_opperands(sym_node** symtable, ast_node* root);
 int list_size(ast_node* root);
+
+ast_node* error(char* error_symbol){
+	ast_node* error_node = ast_new_node(symbol);
+	error_node->value.symbol = strdup(error_symbol);
+	return error_node;
+}
 
 ast_node* eval_function(sym_node** active_symtable, ast_node* root){
 	// Returns a procedure
@@ -27,7 +26,7 @@ ast_node* eval_function(sym_node** active_symtable, ast_node* root){
 
 	if (list_size(arguments) != list_size(opperands)){
 		fprintf(stderr, "ERROR opperator miss match\n");
-		return root;
+		return error("opperator_ERROR");
 	}
 
 	sym_node* tmp_table = *active_symtable;
@@ -49,9 +48,8 @@ ast_node* eval_function(sym_node** active_symtable, ast_node* root){
 	if (  argument->child_count > 0 || opperand->child_count > 0 )
 		fprintf(stderr, "ERROR !! !! Operator miss match\n");
 
-	ast_node* result;
 	// Evalute the function's AST with the temporary symbol table
-	result = eval(&tmp_table, function_ast);
+	ast_node* result = eval(&tmp_table, function_ast);
 
 	// Clean up the temporary symbol table
 	sym_tmp_clean(active_symtable, tmp_table);
@@ -95,6 +93,7 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 					return eval_function_pointer(active_symtable, evaluated_list);
 				default:
 					fprintf(stderr, "ERROR, can't evaluate unsupported type.");
+					return error("unknown_symbol_ERROR");
 			}
 
 			break;
@@ -105,11 +104,6 @@ ast_node* eval(sym_node** active_symtable, ast_node* root){
 
 			// Equal to return nil
 			return ast_new_node(cons_cell);
-		case expression:
-			// I don't know if I need/want this.
-			// I'll leave it here for now, in case I decide to go down this route again.
-
-			break;
 		case conditinal:
 			// Clang won't allow a definition at the beginning of a case
 			// So I'm adding an assert to make it the second statement.
@@ -307,6 +301,7 @@ ast_node* arithmetic(sym_node** symtable, ast_node* root, int( a_function )(int,
 				break;
 			default:
 				fprintf(stderr, "ERROR, an unexpected ast node has entered an arithmetic function\n");
+				exit(1);
 		}
 	}
 
@@ -381,27 +376,7 @@ ast_node* not(sym_node** symtable, ast_node* root){
 
 ast_node* car(sym_node** symtable, ast_node* root){
 
-	// Evaluate the rest of the S-expression
-	
-	// Not quite, I don't want to evaluate the next value across the rest of the opperands.
-	//ast_node* result = eval(symtable, root);
-
 	ast_node* opperands = evaluate_opperands(symtable, root);
-
-	// (func 1 a (+ 1 1) '(a b c)) where a = 7
-	// should get
-	// (func 1 7 2 (a b c))
-	//
-	// This should apply to every function.
-	// So my solution here will be applied to all other functions.
-	// Don't rely on the fact that car only expects one opperand.
-	
-	// (map eval '(x y z))
-	// should do it, hummm
-	// But if I use map here, I can't use car in map.
-	//
-	// I'll try writting map first.
-
 
 	// Check to make sure that it's unwrapping a cons cell
 	if (root->type != cons_cell)

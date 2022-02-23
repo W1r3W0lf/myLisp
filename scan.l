@@ -1,6 +1,6 @@
 %{
-	#include <stdio.h>
 	#include "parse.h"
+	#include <stdio.h>
 %}
 
 %option noinput nounput

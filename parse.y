@@ -1,8 +1,7 @@
 %{
+	#include "ast.h"
 	#include <stdio.h>
 	#include <string.h>
-
-	#include "ast.h"
 
 	extern sym_node* global_symboltable;
 	extern ast_node* ast;
