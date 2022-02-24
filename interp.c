@@ -240,6 +240,7 @@ ast_node* print_runner(sym_node** symtable, ast_node* root){
 			break;
 		case function_pointer:
 			printf("fp#");
+			break;
 		default :
 			fprintf(stderr, "Printing Error\n");
 	}
@@ -438,20 +439,17 @@ ast_node* map(sym_node** symtable, ast_node* root){
 	ast_node* result;
 	ast_node* temp_ast;
 
+	ast_node* temp_node;
+
 	assert(root != NULL);
 
-	ast_node* opperands = evaluate_opperands(symtable, root);
-
-	// TODO Find a better way to handel errors.
-	// Hand crafted errors for each function are bad.
-	// And every error being fatial is worse. (Except in Erlang)
-	int opperand_size = list_size(opperands);
+	int opperand_size = list_size(root);
 	if (opperand_size != 2)
 		fprintf(stderr, "ERROR map can only take 2 arguments\n");
 	assert(opperand_size == 2);
 
-	ast_node* function = opperands->children[0];
-	ast_node* opperand = opperands->children[1];
+	ast_node* function = root->children[0];
+	ast_node* opperand = root->children[1]->children[0];
 
 	while (opperand->child_count > 1){
 
@@ -459,8 +457,14 @@ ast_node* map(sym_node** symtable, ast_node* root){
 		temp_ast = ast_new_node(cons_cell);
 		ast_add_child(temp_ast, function);
 
-		ast_add_child(temp_ast, opperand->children[0]->children[0]);
+		temp_node = ast_new_node(cons_cell);
+		ast_add_child(temp_node, opperand->children[0]);
+		ast_add_child(temp_node, ast_new_node(cons_cell));
 
+		ast_add_child(temp_ast, temp_node);
+
+		printf("map-print\n");
+		repl_print(symtable, temp_ast);
 
 		result = eval(symtable, temp_ast);
 
