@@ -23,20 +23,17 @@ ast_node* eval_function(sym_node** active_symtable, ast_node* root){
 	ast_node* arguments = root->children[0]->children[0];
 
 	// Ensure that arguments and opperands match
-
 	if (list_size(arguments) != list_size(opperands)){
 		fprintf(stderr, "ERROR opperator miss match\n");
 		return error("opperator_ERROR");
 	}
 
 	sym_node* tmp_table = *active_symtable;
-
 	ast_node* argument = arguments;
 	ast_node* opperand = opperands;
 
 	// Match up opperand names and values
 	do{
-
 		// Make a temporary symbol table with those pairs
 		tmp_table = sym_tmp_define(tmp_table, argument->children[0]->value.symbol, opperand->children[0]);
 
@@ -44,9 +41,6 @@ ast_node* eval_function(sym_node** active_symtable, ast_node* root){
 		opperand = opperand->children[1];
 
 	} while( argument->child_count > 0 && opperand->child_count > 0  );
-
-	if (  argument->child_count > 0 || opperand->child_count > 0 )
-		fprintf(stderr, "ERROR !! !! Operator miss match\n");
 
 	// Evalute the function's AST with the temporary symbol table
 	ast_node* result = eval(&tmp_table, function_ast);
@@ -234,9 +228,9 @@ ast_node* print_runner(sym_node** symtable, ast_node* root){
 			print_runner(symtable, root->children[0]);
 			break;
 		case function:
-			assert( 1==1 );
+			printf("f"); //Won't compile with clang without this here
 			int size = list_size(root->children[0]);
-			printf("f%d#", size);
+			printf("%d#", size);
 			break;
 		case function_pointer:
 			printf("fp#");
@@ -428,10 +422,6 @@ ast_node* cons(sym_node** symtable, ast_node* root){
 	return return_node;
 }
 
-// This rings of the evaluate_opperands function
-// It's not suprising, my first idea for that function was to use map
-//
-// TODO Map is currently acting like reduce
 ast_node* map(sym_node** symtable, ast_node* root){
 	ast_node* result_list = ast_new_node(cons_cell);
 	ast_node* last_result = result_list;
@@ -462,9 +452,6 @@ ast_node* map(sym_node** symtable, ast_node* root){
 		ast_add_child(temp_node, ast_new_node(cons_cell));
 
 		ast_add_child(temp_ast, temp_node);
-
-		printf("map-print\n");
-		repl_print(symtable, temp_ast);
 
 		result = eval(symtable, temp_ast);
 
@@ -526,24 +513,42 @@ ast_node* lisp_exit(sym_node** symtable, ast_node* root){
 	return NULL;
 }
 
+struct default_function {
+	ast_node* (*function)(sym_node**, ast_node*);
+	char name[10];
+};
 
 sym_node* default_symtable(){
 	sym_node* symtable = NULL;
 
-	// TODO Find a way to combine these three diffrent variables into something cohesive.
-	static int defualt_function_count = 15;
-	char default_names[][10] = { "eval", "apply", "print", "+", "-", "*", "/", "and", "or", "not", "car", "cdr", "cons", "map", "exit" };
-	ast_node* (*default_functions[])(sym_node**, ast_node*) = {eval, apply, print, add, subtract, multiply, devide, and, or, not, car, cdr, cons, map, lisp_exit};
+	struct default_function functions[] = {
+		{eval, "eval"},
+		{apply, "apply"},
+		{print, "print"},
+		{add, "+"},
+		{subtract, "-"},
+		{multiply, "*"},
+		{devide, "/"},
+		{and, "and"},
+		{or, "or"},
+		{not, "not"},
+		{car, "car"},
+		{cdr, "cdr"},
+		{cons, "cons"},
+		{map, "map"},
+		{lisp_exit, "exit"},
+		{0}
+	};
 
-	ast_node *new_function_pointer;
-	char* new_function_name;
+	struct default_function *new_symbol = functions;
+	ast_node *new_sym_node;
 
-	for (int i = 0 ; i < defualt_function_count ; i++){
-		new_function_pointer = ast_new_node(function_pointer);
-		new_function_pointer->value.function = default_functions[i];
-		new_function_name = default_names[i];
+	while(new_symbol->function){
+		new_sym_node = ast_new_node(function_pointer);
+		new_sym_node->value.function = new_symbol->function;
 
-		symtable = sym_define(&symtable,new_function_name, new_function_pointer);
+		symtable = sym_define(&symtable, new_symbol->name, new_sym_node);
+		new_symbol++;
 	}
 
 	return symtable;
