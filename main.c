@@ -18,9 +18,9 @@ extern YY_BUFFER_STATE yy_scan_string(char * str);
 extern void yy_delete_buffer(YY_BUFFER_STATE buffer);
 
 // Argument parsing
-const char *argp_program_version = "myLisp 0.5.0";
-const char *argp_program_bug_address = "https://github.com/W1r3W0lf/myLisp/issues";
-static char doc[] = "Wire_Wolf's first stab at writting a lisp.";
+const char *argp_program_version = "myLisp 0.1.0";
+const char *argp_program_bug_address = "https://git.sr.ht/~wire_wolf/mylisp";
+static char doc[] = "An interpritor written to learn about interpritors and compilers.";
 static char args_doc[] = "[FILE]...";
 static struct argp_option options[] = {
 	{ "test", 't', 0, 0, "A test value to see how this works." },

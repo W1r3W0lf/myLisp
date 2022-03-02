@@ -16,6 +16,14 @@ ast_node* error(char* error_symbol){
 	return error_node;
 }
 
+/* eval_function
+ * Input:
+ * Output:
+ * Evaluates a user function.
+ *
+ * Adds the opperands into a namespace,
+ * then evaluates the function wihtin that namespace.
+ */
 ast_node* eval_function(sym_node** active_symtable, ast_node* root){
 	// Returns a procedure
 	ast_node* function_ast = root->children[0]->children[1];
@@ -51,6 +59,9 @@ ast_node* eval_function(sym_node** active_symtable, ast_node* root){
 	return result;
 }
 
+/* eval_function_pointer
+ *
+ */
 ast_node* eval_function_pointer(sym_node** active_symtable, ast_node* root){
 	ast_node* function_root = root->children[0];
 	return function_root->value.function(active_symtable, root->children[1]);
