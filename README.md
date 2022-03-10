@@ -6,27 +6,9 @@ myLisp is my first attempt at making my own programming language.
 
 ## The future of myLisp
 
-Currently I'm working on turning myLisp into a usable language.
-It's a toy language right now, but once I think It's robust enough I'll graduate it from myLisp into having a proper name.
+myLisp has been shelved for now.
 
-
-## Later on down the road
-
-I would like to turn myLisp into a better more useful language.
-These are things I would love in a language.
-Once I have the current interpretor up to snuff, I'd like to look into doing some other fun stuff.
-
-Some ideas I have for it are
-* Compilation to an executable
-* having a C ffi
-* creation of header and object files for linking with C object files
-* concurrent programming
-* explicitly denoting mutability
-* manual memory management
-* meta programming
-* dictionaries as struts
-
-
+This was a good learning experience, but there is no practical use for this project.
 
 ## Language features that myLisp has
 ### Variable assignment
